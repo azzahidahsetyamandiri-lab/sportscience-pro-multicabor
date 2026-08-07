@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SportScience Pro Multicabor</title>
+  <!-- Versi cloud dengan persetujuan akun admin -->
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -2629,7 +2630,7 @@ body.athlete-reload-mode #idAtlet{
     <label>Email<input id="loginEmail" type="email" autocomplete="email" placeholder="nama@email.com"></label>
     <label>Kata sandi<input id="loginPass" type="password" autocomplete="current-password" minlength="6" placeholder="Minimal 6 karakter" onkeydown="if(event.key==='Enter') submitAuth()"></label>
     <button id="authSubmitBtn" class="btn primary" type="button" onclick="submitAuth()">Masuk ke Aplikasi</button>
-    <div id="loginError" class="loginHint">Data disimpan ke database cloud sesuai akun yang masuk.</div>
+    <div id="loginError" class="loginHint">Akun baru harus disetujui administrator sebelum dapat membuka aplikasi.</div>
 
     <details id="cloudConfigPanel" class="cloudConfigPanel">
       <summary>Konfigurasi database Supabase</summary>
@@ -4545,28 +4546,53 @@ body.athlete-reload-mode #idAtlet{
     cloudSyncTimer=setTimeout(()=>cloudPushNow().catch(err=>setCloudStatus('☁ Gagal: '+err.message,'error')),500);
   }
 
+  // =========================================================
+  // PERSETUJUAN AKUN OLEH ADMIN (SUPABASE TABLE EDITOR)
+  // Akun hanya boleh membuka dan menyimpan data jika approval_status='approved'.
+  // =========================================================
+  function approvalStatusMessage(status){
+    switch(String(status||'pending').toLowerCase()){
+      case 'approved': return 'Akun telah disetujui.';
+      case 'rejected': return 'Pendaftaran akun ditolak oleh administrator.';
+      case 'suspended': return 'Akun sedang dinonaktifkan oleh administrator.';
+      default: return 'Akun sedang menunggu persetujuan administrator.';
+    }
+  }
+
+  function approvalStatusBadge(status){
+    switch(String(status||'pending').toLowerCase()){
+      case 'rejected': return ['☁ Akun ditolak','error'];
+      case 'suspended': return ['☁ Akun dinonaktifkan','error'];
+      default: return ['☁ Menunggu persetujuan admin','syncing'];
+    }
+  }
+
   async function cloudPushNow(showMessage=false){
     const client=getCloudClient();
     if(!client || !cloudUser){
       if(showMessage) alert('Belum terhubung ke akun Supabase.');
       return false;
     }
+    if(!cloudReady){
+      if(showMessage) alert('Akun belum disetujui atau data cloud belum siap.');
+      return false;
+    }
     clearTimeout(cloudSyncTimer);
     setCloudStatus('☁ Menyimpan ke cloud…','syncing');
-    const meta=cloudUser.user_metadata||{};
-    const record={
-      user_id:cloudUser.id,
-      email:cloudUser.email||null,
-      full_name:meta.full_name||meta.name||null,
-      role:meta.role==='individu'?'individu':'pelatih',
+    const changes={
       payload:collectCloudPayload(),
       updated_at:new Date().toISOString()
     };
     const {data,error}=await client.from(CLOUD_TABLE)
-      .upsert(record,{onConflict:'user_id'})
-      .select('updated_at')
+      .update(changes)
+      .eq('user_id',cloudUser.id)
+      .select('updated_at,approval_status')
       .single();
     if(error) throw error;
+    if(data.approval_status!=='approved'){
+      cloudReady=false;
+      throw new Error(approvalStatusMessage(data.approval_status));
+    }
     nativeStorageSetItem.call(localStorage,cloudMarkerKey(cloudUser.id),data.updated_at);
     setCloudStatus('☁ Tersimpan online','online');
     if(showMessage) alert('Data berhasil disinkronkan ke cloud.');
@@ -4577,26 +4603,47 @@ body.athlete-reload-mode #idAtlet{
     const client=getCloudClient();
     if(!client || !cloudUser) return null;
     const {data,error}=await client.from(CLOUD_TABLE)
-      .select('payload,updated_at,email,full_name,role')
+      .select('payload,updated_at,email,full_name,role,approval_status')
       .eq('user_id',cloudUser.id)
       .maybeSingle();
     if(error) throw error;
     return data;
   }
 
+  async function blockUnapprovedAccount(status){
+    cloudReady=false;
+    clearTimeout(cloudSyncTimer);
+    const normalized=String(status||'pending').toLowerCase();
+    const message=approvalStatusMessage(normalized);
+    const [badgeText,badgeType]=approvalStatusBadge(normalized);
+    setCloudStatus(badgeText,badgeType);
+    setAuthMode('login');
+    setAuthInfo(message,normalized==='rejected'||normalized==='suspended');
+    try{
+      const client=getCloudClient();
+      if(client) await client.auth.signOut();
+    }catch(err){console.warn('Gagal mengakhiri sesi akun yang belum disetujui:',err);}
+    cloudUser=null;
+    document.getElementById('loginOverlay')?.classList.remove('hidden');
+    document.body.classList.add('login-active');
+    return false;
+  }
+
   async function cloudLoadForCurrentUser(){
-    setCloudStatus('☁ Memeriksa data cloud…','syncing');
+    setCloudStatus('☁ Memeriksa persetujuan akun…','syncing');
     const row=await cloudFetchRecord();
+    if(!row){
+      return blockUnapprovedAccount('pending');
+    }
+    const approvalStatus=String(row.approval_status||'pending').toLowerCase();
+    if(approvalStatus!=='approved'){
+      return blockUnapprovedAccount(approvalStatus);
+    }
+
     const marker=nativeStorageGet(cloudMarkerKey(cloudUser.id));
     const previousUser=nativeStorageGet(CLOUD_LAST_USER_STORE);
-    if(!row){
-      if(previousUser && previousUser!==cloudUser.id){
-        applyCloudPayload({});
-      }
-      nativeStorageSetItem.call(localStorage,CLOUD_LAST_USER_STORE,cloudUser.id);
-      cloudReady=true;
-      await cloudPushNow(false);
-      return true;
+    if(previousUser && previousUser!==cloudUser.id){
+      applyCloudPayload({});
     }
     const remotePayload=row.payload&&typeof row.payload==='object'?row.payload:{};
     const localPayload=collectCloudPayload();
@@ -4702,7 +4749,7 @@ body.athlete-reload-mode #idAtlet{
         if(error)throw error;
         if(!data.session){
           setAuthMode('login');
-          setAuthInfo('Pendaftaran berhasil. Periksa email untuk konfirmasi, lalu masuk.');
+          setAuthInfo('Pendaftaran berhasil. Setelah konfirmasi email, akun tetap menunggu persetujuan administrator.');
           return;
         }
         cloudUser=data.user;
@@ -4711,7 +4758,7 @@ body.athlete-reload-mode #idAtlet{
         if(error)throw error;
         cloudUser=data.user;
       }
-      setAuthInfo('Login berhasil. Memuat data cloud…');
+      setAuthInfo('Memeriksa persetujuan akun…');
       const ready=await cloudLoadForCurrentUser();
       if(!ready)return;
       document.getElementById('loginPass').value='';
