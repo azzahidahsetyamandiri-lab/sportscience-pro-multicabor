@@ -2677,6 +2677,136 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
 @media(max-width:980px){.exerciseHero{grid-template-columns:1fr}.exerciseGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.exerciseFilters{grid-template-columns:1fr 1fr}.exerciseModalBody{grid-template-columns:1fr}.exerciseVideoStage{min-height:230px}.exerciseVideoStage video{height:260px}.exercisePrescriptionGrid,.exerciseRefGrid{grid-template-columns:1fr}.exerciseRxItem{grid-template-columns:1fr 1fr}.exerciseRxItem .rxName{grid-column:1/-1}}
 @media(max-width:620px){.exerciseGrid{grid-template-columns:1fr}.exerciseFilters{grid-template-columns:1fr}.exerciseHeroMetrics{grid-template-columns:repeat(2,1fr)}.exerciseDetailGrid{grid-template-columns:1fr}.exerciseModal{padding:8px}.exerciseModalCard{max-height:96vh}.exerciseRxItem{grid-template-columns:1fr}.exerciseRxItem .rxName{grid-column:auto}}
 
+
+/* =========================================================
+   V6 PROFESSIONAL PERFORMANCE PRESCRIPTION LAB
+   ========================================================= */
+.proRxLab{
+  margin:14px 0;
+  border:1px solid rgba(125,211,252,.28);
+  border-radius:18px;
+  overflow:hidden;
+  background:
+    radial-gradient(700px 260px at 8% 0%,rgba(56,189,248,.12),transparent 64%),
+    linear-gradient(145deg,rgba(8,74,56,.94),rgba(4,52,40,.95));
+  box-shadow:0 14px 34px rgba(0,0,0,.18)
+}
+.proRxHead{
+  padding:14px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+  border-bottom:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(90deg,rgba(56,189,248,.13),rgba(45,212,168,.10),rgba(163,230,53,.07))
+}
+.proRxHead h3{margin:5px 0 5px;color:#fff;font-size:16px}
+.proRxHead p{margin:0;color:#c8eadb;font-size:10px;line-height:1.55;max-width:850px}
+.proRxVersion{
+  display:inline-flex;padding:5px 8px;border-radius:999px;
+  background:rgba(56,189,248,.14);border:1px solid rgba(125,211,252,.32);
+  color:#e1f7ff;font-size:8px;font-weight:900;letter-spacing:.45px
+}
+.proRxScience{
+  flex:none;display:flex;align-items:center;gap:6px;padding:7px 9px;border-radius:11px;
+  background:rgba(163,230,53,.09);border:1px solid rgba(190,242,100,.23);
+  color:#efffdc;font-size:8.5px;font-weight:800
+}
+.proRxBody{padding:13px}
+.proRxConfig{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px
+}
+@media(max-width:1050px){.proRxConfig{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.proRxConfig{grid-template-columns:1fr}}
+.proRxConfig label{font-size:9px;color:#c8eadb}
+.proRxConfig select,.proRxConfig input{font-size:10px;padding:8px}
+.proRxActions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.proRxOutput{margin-top:12px}
+.proRxEmpty{
+  padding:20px;border:1px dashed rgba(255,255,255,.18);border-radius:14px;
+  text-align:center;color:#c8eadb;font-size:10px;line-height:1.6
+}
+.proRxContextGrid{
+  display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;margin-bottom:9px
+}
+@media(max-width:1000px){.proRxContextGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){.proRxContextGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.proRxMetric{
+  border:1px solid rgba(255,255,255,.13);border-radius:12px;padding:9px;
+  background:rgba(255,255,255,.055)
+}
+.proRxMetric small{display:block;color:#bfe3d3;font-size:7.5px;text-transform:uppercase;letter-spacing:.4px}
+.proRxMetric b{display:block;color:#fff;font-size:13px;margin-top:3px;line-height:1.25}
+.proRxMetric span{display:block;color:#bfe3d3;font-size:7.5px;margin-top:2px;line-height:1.35}
+.proRxGate{
+  padding:10px 12px;border-radius:12px;margin:9px 0;font-size:9.5px;line-height:1.55;
+  border-left:4px solid #2dd4a8;background:rgba(45,212,168,.075);color:#e5fff4
+}
+.proRxGate.yellow{border-left-color:#f59e0b;background:rgba(245,158,11,.08);color:#fff2cf}
+.proRxGate.red{border-left-color:#ef4444;background:rgba(239,68,68,.085);color:#ffe3e3}
+.proRxGate b{color:#fff}
+.proRxPriorityGrid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:9px 0
+}
+@media(max-width:800px){.proRxPriorityGrid{grid-template-columns:1fr}}
+.proRxPriority{
+  border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:10px;background:rgba(255,255,255,.05)
+}
+.proRxPriority small{color:#bfe3d3;font-size:7.5px;text-transform:uppercase}
+.proRxPriority b{display:block;color:#fff;font-size:13px;margin:3px 0}
+.proRxPriority span{color:#c8eadb;font-size:8.5px;line-height:1.4}
+.proRxExerciseGrid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:9px
+}
+@media(max-width:760px){.proRxExerciseGrid{grid-template-columns:1fr}}
+.proRxExercise{
+  border:1px solid rgba(255,255,255,.14);border-radius:13px;padding:10px;
+  background:linear-gradient(145deg,rgba(255,255,255,.065),rgba(45,212,168,.035))
+}
+.proRxExerciseTop{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.proRxExercise h4{margin:0;color:#fff;font-size:11px}
+.proRxScore{
+  min-width:46px;text-align:center;padding:5px 6px;border-radius:10px;
+  background:rgba(163,230,53,.12);border:1px solid rgba(190,242,100,.24);
+  color:#efffdc;font-size:9px;font-weight:900
+}
+.proRxReason{margin-top:5px;color:#c8eadb;font-size:8px;line-height:1.45}
+.proRxDose{margin-top:7px;padding:7px 8px;border-radius:9px;background:rgba(0,0,0,.12);color:#eafff4;font-size:8px;line-height:1.45}
+.proRxBadges{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.proRxBadge{
+  display:inline-flex;padding:4px 6px;border-radius:999px;border:1px solid rgba(255,255,255,.13);
+  background:rgba(255,255,255,.055);color:#dff5e9;font-size:7px;font-weight:800
+}
+.proRxBadge.high{background:rgba(34,197,94,.12);border-color:rgba(74,222,128,.25);color:#dcffe8}
+.proRxBadge.medium{background:rgba(56,189,248,.10);border-color:rgba(125,211,252,.24);color:#e1f8ff}
+.proRxMicroGrid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:9px
+}
+@media(max-width:850px){.proRxMicroGrid{grid-template-columns:1fr}}
+.proRxSession{
+  border:1px solid rgba(255,255,255,.14);border-radius:13px;padding:10px;background:rgba(255,255,255,.05)
+}
+.proRxSession h4{margin:0 0 4px;color:#fff;font-size:10.5px}
+.proRxSession p{margin:3px 0;color:#c8eadb;font-size:8px;line-height:1.45}
+.proRxLoad{
+  margin-top:7px;padding:6px 8px;border-radius:9px;background:rgba(56,189,248,.075);
+  border:1px solid rgba(125,211,252,.16);color:#e2f8ff;font-size:7.8px
+}
+.proRxSectionTitle{
+  margin:12px 0 7px;font-size:10px;color:#fff;text-transform:uppercase;letter-spacing:.5px
+}
+.proRxEvidence{
+  margin-top:10px;padding:10px 12px;border-radius:12px;
+  border-left:4px solid #38bdf8;background:rgba(56,189,248,.07);
+  color:#dff7ff;font-size:8.5px;line-height:1.55
+}
+.proRxEvidence b{color:#fff}
+.proRxFooter{
+  display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;
+  margin-top:10px;padding-top:9px;border-top:1px dashed rgba(255,255,255,.15)
+}
+.proRxTimestamp{color:#bfe3d3;font-size:7.5px}
+
 </style>
 </head>
 
@@ -4395,6 +4525,93 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
           </div>
         </div>
 
+        
+        <div class="proRxLab" id="proRxLab">
+          <div class="proRxHead">
+            <div>
+              <span class="proRxVersion">V6 PROFESSIONAL PERFORMANCE PRESCRIPTION LAB</span>
+              <h3>Prescription Builder berbasis tes, konteks latihan, kesiapan, dan transparansi keputusan</h3>
+              <p>Sistem merangking exercise dari pustaka menggunakan hasil tes terbaru, target adaptasi, fase latihan, usia latihan, fasilitas, serta wellness terbaru. Setiap rekomendasi menampilkan alasan dan dosis awal agar pelatih dapat menilai keputusan sistem, bukan sekadar menerima hasil otomatis.</p>
+            </div>
+            <div class="proRxScience">⚗ Decision support, bukan diagnosis</div>
+          </div>
+          <div class="proRxBody">
+            <div class="proRxConfig">
+              <label>Atlet
+                <select id="proRxAthlete"><option value="">Pilih atlet</option></select>
+              </label>
+              <label>Target utama
+                <select id="proRxTarget">
+                  <option value="auto">Otomatis dari hasil tes</option>
+                  <option value="Strength">Strength</option>
+                  <option value="Power">Power</option>
+                  <option value="Speed">Speed</option>
+                  <option value="Agility/COD">Agility/COD</option>
+                  <option value="Endurance">Endurance</option>
+                  <option value="Core">Core</option>
+                  <option value="Balance/Mobility">Balance/Mobility</option>
+                  <option value="Prevention">Injury Prevention</option>
+                </select>
+              </label>
+              <label>Fase latihan
+                <select id="proRxPhase">
+                  <option value="general">General Preparation</option>
+                  <option value="specific" selected>Specific Preparation</option>
+                  <option value="precomp">Pre Competition</option>
+                  <option value="competition">Competition</option>
+                  <option value="transition">Transition</option>
+                </select>
+              </label>
+              <label>Usia latihan
+                <select id="proRxTrainingAge">
+                  <option value="beginner">Dasar, penguasaan teknik</option>
+                  <option value="intermediate" selected>Menengah</option>
+                  <option value="advanced">Lanjut</option>
+                </select>
+              </label>
+              <label>Sesi per minggu
+                <select id="proRxFrequency">
+                  <option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option>
+                </select>
+              </label>
+              <label>Durasi sesi
+                <select id="proRxDuration">
+                  <option value="30">30 menit</option>
+                  <option value="45">45 menit</option>
+                  <option value="60" selected>60 menit</option>
+                  <option value="75">75 menit</option>
+                  <option value="90">90 menit</option>
+                </select>
+              </label>
+              <label>Fasilitas
+                <select id="proRxEquipmentProfile">
+                  <option value="bodyweight">Minimal, berat badan dan lapangan</option>
+                  <option value="basic">Basic gym, dumbbell, band, bench, box</option>
+                  <option value="full" selected>Full performance facility</option>
+                </select>
+              </label>
+              <label>Kesiapan hari ini
+                <select id="proRxReadiness">
+                  <option value="auto" selected>Otomatis dari Wellness terbaru</option>
+                  <option value="green">Hijau, normal</option>
+                  <option value="yellow">Kuning, modifikasi</option>
+                  <option value="red">Merah, tinjau atau tunda</option>
+                </select>
+              </label>
+            </div>
+            <div class="proRxActions">
+              <button class="btn primary" onclick="generateProfessionalPrescription()">⚗ Generate Professional Prescription</button>
+              <button class="btn" onclick="saveProfessionalPrescription()">💾 Simpan Prescription</button>
+              <button class="btn" onclick="addProfessionalPlanToRx()">+ Masukkan ke Resep Sesi</button>
+              <button class="btn" onclick="showModule('moduleTraining')">◆ Buka Program Latihan</button>
+              <button class="btn" onclick="resetProfessionalPrescription()">↺ Reset</button>
+            </div>
+            <div class="proRxOutput" id="proRxOutput">
+              <div class="proRxEmpty">Pilih atlet dan konteks latihan, kemudian klik <b>Generate Professional Prescription</b>. Sistem tidak akan mengubah data tes atau program sampai Anda memilih menyimpan atau memasukkan exercise ke resep sesi.</div>
+            </div>
+          </div>
+        </div>
+
         <div class="exerciseFilters">
           <label>Cari latihan<input id="exerciseSearch" placeholder="Contoh: squat, sprint, nordic" oninput="renderExerciseLibrary()"></label>
           <label>Kategori<select id="exerciseCategory" onchange="renderExerciseLibrary()"><option value="all">Semua kategori</option></select></label>
@@ -4415,7 +4632,7 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
         <div class="exerciseSciencePanel">
           <h3>📚 Basis ilmiah modul</h3>
           <div class="exerciseRefGrid" id="exerciseRefGrid"></div>
-          <div class="exerciseDisclaimer"><b>Catatan profesional.</b> Parameter set, repetisi, intensitas, interval istirahat, dan frekuensi pada pustaka merupakan rentang awal berbasis literatur. Pelatih tetap harus menyesuaikan dosis menurut tujuan adaptasi, usia latihan, fase kompetisi, teknik, kelelahan, riwayat cedera, dan respons individual. Video berfungsi sebagai visualisasi edukatif. Badge <b>VIDEO SPESIFIK</b> berarti gerakan pada video sesuai dengan latihan, sedangkan <b>DEMO POLA GERAK</b> hanya membantu memahami pola dasar dan tidak boleh dianggap identik dengan exercise yang diresepkan. Video tidak digunakan sebagai diagnosis biomekanik atau medical clearance. V5.2 menggunakan klip yang berbeda antar latihan sejauh media yang sesuai tersedia, sehingga visual lebih jelas dan tidak repetitif.</div>
+          <div class="exerciseDisclaimer"><b>Catatan profesional.</b> Parameter set, repetisi, intensitas, interval istirahat, dan frekuensi pada pustaka merupakan rentang awal berbasis literatur. Pelatih tetap harus menyesuaikan dosis menurut tujuan adaptasi, usia latihan, fase kompetisi, teknik, kelelahan, riwayat cedera, dan respons individual. Video berfungsi sebagai visualisasi edukatif. Badge <b>VIDEO SPESIFIK</b> berarti gerakan pada video sesuai dengan latihan, sedangkan <b>DEMO POLA GERAK</b> hanya membantu memahami pola dasar dan tidak boleh dianggap identik dengan exercise yang diresepkan. Video tidak digunakan sebagai diagnosis biomekanik atau medical clearance. V6 mempertahankan klip yang berbeda antar latihan sejauh media yang sesuai tersedia, sehingga visual lebih jelas dan tidak repetitif.</div>
         </div>
       </div>
     </div>
@@ -11256,7 +11473,9 @@ Data belum dihapus permanen dan baru akan masuk cloud setelah Anda menekan Simpa
     {area:'Acceleration',citation:'Aldrich et al. (2024), systematic review and meta-analysis resisted sprint training.',use:'Resisted sprint training is a relevant option for acceleration development when load and sprint quality are controlled.',url:'https://pubmed.ncbi.nlm.nih.gov/39253367/'},
     {area:'Aerobic conditioning',citation:'Wang et al. (2024), systematic review and meta-analysis HIIT versus MICT in athletes.',use:'HIIT and continuous training can improve aerobic outcomes, with HIIT showing advantages for several VO2max-related outcomes in studied athletes.',url:'https://pubmed.ncbi.nlm.nih.gov/38904772/'},
     {area:'Hamstring eccentric training',citation:'Nunes et al. (2024), systematic review Nordic Hamstring Exercise.',use:'Nordic hamstring interventions show positive effects on eccentric strength-related outcomes and may support sprint performance.',url:'https://pubmed.ncbi.nlm.nih.gov/39120165/'},
-    {area:'Visual feedback',citation:'Mödinger et al. (2022), German Journal of Exercise and Sport Research. Systematic review.',use:'Video-based visual feedback can enhance motor learning and may outperform verbal feedback alone in some settings.',url:'https://link.springer.com/article/10.1007/s12662-021-00782-y'}
+    {area:'Visual feedback',citation:'Mödinger et al. (2022), German Journal of Exercise and Sport Research. Systematic review.',use:'Video-based visual feedback can enhance motor learning and may outperform verbal feedback alone in some settings.',url:'https://link.springer.com/article/10.1007/s12662-021-00782-y'},
+    {area:'Session RPE monitoring',citation:'Yang et al. (2024), Frontiers in Neuroscience. Training-load monitoring in elite endurance athletes.',use:'Session-RPE can provide a practical estimate of internal training load when interpreted with duration and athlete context.',url:'https://pubmed.ncbi.nlm.nih.gov/38846717/'},
+    {area:'Plyometric performance',citation:'Zheng et al. (2025), PLOS One. Systematic review and meta-analysis.',use:'Plyometric training improved jump, sprint, and change-of-direction performance in the studied adolescent soccer population.',url:'https://pubmed.ncbi.nlm.nih.gov/40300007/'}
   ];
 
   const EXERCISE_LIBRARY=[
@@ -11291,7 +11510,7 @@ Data belum dihapus permanen dan baru akan masuk cloud setelah Anda menekan Simpa
   ];
 
 
-  // ===== V5.2 CURATED VIDEO TECHNIQUE LIBRARY =====
+  // ===== V6 CURATED VIDEO + PROFESSIONAL PRESCRIPTION =====
   // Video Pexels dikurasi per exercise untuk mengurangi duplikasi dan meningkatkan kualitas visual. Video digunakan sebagai visualisasi edukatif. Video dengan match="pattern"
   // hanya memperlihatkan pola gerak yang berdekatan, bukan demonstrasi identik.
   const EXERCISE_VIDEO_LIBRARY={
@@ -11349,6 +11568,381 @@ Data belum dihapus permanen dan baru akan masuk cloud setelah Anda menekan Simpa
   function exerciseCategoryForGroup(group){return({strength:'Strength',power:'Power',core:'Core',speedAgility:'Speed',aerobic:'Endurance',mobility:'Balance/Mobility'})[group]||'';}
   function exercisePrimaryCatsForRecord(record){return [...(record?.components||[])].sort((a,b)=>Number(a.pct)-Number(b.pct)).slice(0,3).map(c=>({group:c.key,pct:Number(c.pct)||0,label:groupName(c.key),cat:exerciseCategoryForGroup(c.key)}));}
 
+
+  // ===== V6 PROFESSIONAL PERFORMANCE PRESCRIPTION LAB =====
+  const PROFESSIONAL_RX_STORE='sportscience_professional_prescription_v1';
+  let professionalRxPlan=null;
+
+  const PRO_RX_PHASE_LABELS={
+    general:'General Preparation',
+    specific:'Specific Preparation',
+    precomp:'Pre Competition',
+    competition:'Competition',
+    transition:'Transition'
+  };
+
+  const PRO_RX_PHASE_WEIGHTS={
+    general:{Strength:18,Endurance:14,Core:9,'Balance/Mobility':9,Prevention:8,Power:6,Speed:3,'Agility/COD':3},
+    specific:{Power:18,Speed:15,'Agility/COD':13,Strength:11,Prevention:8,Core:5,Endurance:5,'Balance/Mobility':5},
+    precomp:{Speed:18,Power:17,'Agility/COD':14,Prevention:9,Strength:6,Core:4,Endurance:2,'Balance/Mobility':4},
+    competition:{Speed:13,Power:13,Prevention:12,'Agility/COD':8,'Balance/Mobility':7,Core:6,Strength:4,Endurance:2},
+    transition:{'Balance/Mobility':20,Prevention:16,Core:12,Endurance:10,Strength:4,Power:-6,Speed:-8,'Agility/COD':-5}
+  };
+
+  function proEquipmentAllowed(ex,profile){
+    const eq=String(ex.equipment||'').toLowerCase();
+    if(profile==='full')return true;
+    if(profile==='bodyweight'){
+      return ['berat badan','lapangan','dinding','cone'].some(x=>eq.includes(x));
+    }
+    const blocked=['barbell','sled','cable'];
+    if(profile==='basic'&&blocked.some(x=>eq.includes(x)))return false;
+    return true;
+  }
+
+  function proTrainingAgeScore(level,age){
+    if(age==='beginner') return level==='Dasar'?15:level==='Menengah'?3:-16;
+    if(age==='advanced') return level==='Lanjut'?15:level==='Menengah'?10:5;
+    return level==='Menengah'?15:level==='Dasar'?9:level==='Lanjut'?6:0;
+  }
+
+  function proLatestWellnessContext(key){
+    const w=getLatestWellness(key);
+    if(!w)return {state:'unknown',label:'Belum ada Wellness',detail:'Tidak ditemukan monitoring wellness untuk atlet ini.',record:null};
+    const date=String(w.date||'');
+    let ageDays=null;
+    if(date){
+      const d=new Date(date+'T00:00:00'),now=new Date();
+      if(Number.isFinite(d.getTime()))ageDays=Math.floor((now-d)/86400000);
+    }
+    if(ageDays!==null&&ageDays>2){
+      return {state:'unknown',label:'Wellness tidak terbaru',detail:`Catatan terakhir ${date}, sehingga tidak digunakan sebagai readiness otomatis.`,record:w};
+    }
+    const risk=String(w.risk||'').toLowerCase();
+    if(risk==='high')return {state:'red',label:'Merah',detail:w.recommendation||'Perlu tinjauan sebelum sesi intensif.',record:w};
+    if(risk==='moderate')return {state:'yellow',label:'Kuning',detail:w.recommendation||'Pertimbangkan modifikasi sesi.',record:w};
+    if(risk==='low')return {state:'green',label:'Hijau',detail:w.recommendation||'Monitoring normal.',record:w};
+    return {state:'unknown',label:'Belum terklasifikasi',detail:'Wellness tersedia tetapi status kesiapan tidak terbaca.',record:w};
+  }
+
+  function proResolveReadiness(key,manual){
+    if(manual&&manual!=='auto'){
+      const labels={green:'Hijau',yellow:'Kuning',red:'Merah'};
+      return {state:manual,label:labels[manual],detail:'Status kesiapan dipilih manual oleh pelatih untuk prescription ini.',record:null,manual:true};
+    }
+    return proLatestWellnessContext(key);
+  }
+
+  function proWeaknesses(record){
+    return [...(record?.components||[])]
+      .filter(c=>Number.isFinite(Number(c.pct)))
+      .sort((a,b)=>Number(a.pct)-Number(b.pct))
+      .slice(0,4)
+      .map((c,i)=>({
+        rank:i+1,
+        group:c.key,
+        label:c.label||groupName(c.key),
+        pct:Number(c.pct),
+        cat:exerciseCategoryForGroup(c.key)
+      }));
+  }
+
+  function proScoreExercise(ex,ctx){
+    let score=20;
+    const reasons=[];
+    const weak=ctx.weak||[];
+    const weakIndex=weak.findIndex(w=>w.cat===ex.cat);
+    if(weakIndex===0){score+=34;reasons.push('sesuai prioritas fisik terendah');}
+    else if(weakIndex===1){score+=24;reasons.push('sesuai prioritas fisik kedua');}
+    else if(weakIndex===2){score+=14;reasons.push('mendukung prioritas fisik ketiga');}
+    else if(weakIndex===3){score+=7;reasons.push('mendukung komponen yang masih perlu dipantau');}
+
+    if(ctx.target!=='auto'){
+      if(ex.cat===ctx.target){score+=27;reasons.push('sesuai target adaptasi yang dipilih');}
+      else score-=3;
+    }
+
+    const phaseScore=Number(PRO_RX_PHASE_WEIGHTS[ctx.phase]?.[ex.cat]||0);
+    score+=phaseScore;
+    if(phaseScore>=10)reasons.push('sesuai fokus fase latihan');
+    else if(phaseScore<0)reasons.push('kurang diprioritaskan pada fase ini');
+
+    const ageScore=proTrainingAgeScore(ex.level,ctx.trainingAge);
+    score+=ageScore;
+    if(ageScore>=10)reasons.push('sesuai tingkat pengalaman latihan');
+    if(ageScore<0)reasons.push('terlalu lanjut untuk profil pengalaman saat ini');
+
+    if(ex.cat==='Prevention'){score+=6;reasons.push('menambah unsur robustness dan prevention');}
+
+    if(ctx.readiness.state==='yellow'){
+      if(['Power','Speed','Agility/COD'].includes(ex.cat))score-=10;
+      if(['Balance/Mobility','Core','Prevention'].includes(ex.cat))score+=10;
+      reasons.push('volume atau intensitas perlu dimodifikasi karena readiness kuning');
+    }
+    if(ctx.readiness.state==='red'){
+      if(['Power','Speed','Agility/COD','Strength'].includes(ex.cat))score-=45;
+      if(['Balance/Mobility','Core'].includes(ex.cat))score+=18;
+      reasons.push('readiness merah, hindari aktivitas maksimal sampai ditinjau');
+    }
+
+    if(!proEquipmentAllowed(ex,ctx.equipmentProfile)){
+      score-=100;
+      reasons.push('fasilitas tidak tersedia');
+    }
+
+    const evidenceMap={
+      Strength:'Tinggi',
+      Power:'Tinggi',
+      Speed:'Sedang',
+      'Agility/COD':'Sedang',
+      Endurance:'Tinggi',
+      Core:'Sedang',
+      Prevention:'Sedang',
+      'Balance/Mobility':'Sedang'
+    };
+    return {ex,score:Math.max(0,Math.min(100,Math.round(score))),reasons:[...new Set(reasons)],evidence:evidenceMap[ex.cat]||'Sedang'};
+  }
+
+  function proSelectExercises(ctx){
+    let ranked=EXERCISE_LIBRARY
+      .map(ex=>proScoreExercise(ex,ctx))
+      .filter(x=>x.score>0&&proEquipmentAllowed(x.ex,ctx.equipmentProfile))
+      .sort((a,b)=>b.score-a.score);
+
+    if(ctx.readiness.state==='red'){
+      ranked=ranked.filter(x=>['Balance/Mobility','Core','Prevention'].includes(x.ex.cat));
+    }
+
+    const selected=[],catCount={};
+    for(const item of ranked){
+      const cat=item.ex.cat;
+      if((catCount[cat]||0)>=2)continue;
+      selected.push(item);catCount[cat]=(catCount[cat]||0)+1;
+      if(selected.length>=6)break;
+    }
+
+    if(ctx.readiness.state!=='red'&&!selected.some(x=>x.ex.cat==='Prevention')){
+      const prevention=ranked.find(x=>x.ex.cat==='Prevention');
+      if(prevention&&selected.length){
+        selected[selected.length-1]=prevention;
+      }
+    }
+    return selected;
+  }
+
+  function proRpeTarget(phase,readiness){
+    let low=5,high=7;
+    if(phase==='general'){low=6;high=8;}
+    if(phase==='specific'){low=6;high=8;}
+    if(phase==='precomp'){low=5;high=7;}
+    if(phase==='competition'){low=4;high=6;}
+    if(phase==='transition'){low=3;high=5;}
+    if(readiness==='yellow'){low=Math.max(3,low-2);high=Math.max(low+1,high-1);}
+    if(readiness==='red'){low=2;high=4;}
+    return {low,high};
+  }
+
+  function proSessionFocuses(ctx){
+    const n=ctx.frequency;
+    const primary=ctx.target!=='auto'?ctx.target:(ctx.weak[0]?.cat||'Strength');
+    const secondary=ctx.weak.find(w=>w.cat&&w.cat!==primary)?.cat||'Power';
+    const base=[
+      {title:'Sesi A',focus:`${primary} + kualitas teknik`,note:'Komponen prioritas dikerjakan saat atlet masih segar.'},
+      {title:'Sesi B',focus:`${secondary} + Strength`,note:'Komponen pendukung dengan volume terkontrol.'},
+      {title:'Sesi C',focus:'Speed/COD + Prevention',note:'Kualitas gerak, akselerasi, braking, dan robustness.'},
+      {title:'Sesi D',focus:'Endurance + Core',note:'Conditioning sesuai cabor dengan kontrol beban internal.'},
+      {title:'Sesi E',focus:'Technical integration + Mobility',note:'Integrasikan tuntutan cabang olahraga dan recovery.'},
+      {title:'Sesi F',focus:'Low load recovery / monitoring',note:'Sesi ringan, kualitas gerak, dan evaluasi kesiapan.'}
+    ];
+    if(ctx.phase==='competition'){
+      base[0]={title:'Sesi A',focus:`${primary} maintenance`,note:'Pertahankan kualitas dengan volume lebih rendah.'};
+      base[1]={title:'Sesi B',focus:'Speed/Power primer',note:'Sedikit repetisi, recovery penuh, kualitas tinggi.'};
+      base[2]={title:'Sesi C',focus:'Prevention + Mobility',note:'Jaga readiness dan kurangi residual fatigue.'};
+    }
+    if(ctx.phase==='transition'){
+      base[0]={title:'Sesi A',focus:'Mobility + Core',note:'Pemulihan aktif dan kualitas gerak.'};
+      base[1]={title:'Sesi B',focus:'Aerobic low to moderate',note:'Conditioning ringan tanpa target performa maksimal.'};
+      base[2]={title:'Sesi C',focus:'General movement + Prevention',note:'Variasi aktivitas dan maintenance.'};
+    }
+    return base.slice(0,n);
+  }
+
+  function proDoseParts(dose){
+    const s=String(dose||'');
+    let m=s.match(/(\d+[–-]\d+|\d+)\s*set\s*[×x]\s*(.+)/i);
+    if(m)return {sets:m[1],reps:m[2]};
+    m=s.match(/(\d+[–-]\d+|\d+)\s*[×x]\s*(.+)/i);
+    if(m)return {sets:m[1],reps:m[2]};
+    return {sets:'Sesuai dosis',reps:s||'Lihat prescription'};
+  }
+
+  function professionalPrescriptionSummaryText(plan){
+    if(!plan)return '';
+    const ex=plan.exercises.map((x,i)=>`${i+1}. ${x.ex.name}: ${x.ex.dose}, ${x.ex.rest}`).join('\n');
+    return [
+      `PROFESSIONAL PRESCRIPTION`,
+      `Atlet: ${plan.record.nama||'-'} | Cabor: ${plan.record.cabor||'-'}`,
+      `Fase: ${PRO_RX_PHASE_LABELS[plan.context.phase]}`,
+      `Readiness: ${plan.context.readiness.label}`,
+      `Prioritas: ${plan.context.weak.map(x=>`${x.label} ${x.pct.toFixed(0)}%`).join(', ')}`,
+      '',
+      ex,
+      '',
+      `Catatan: Recommendation engine adalah decision support. Dosis final ditentukan pelatih berdasarkan respons atlet, teknik, konteks kompetisi, dan monitoring.`
+    ].join('\n');
+  }
+
+  function generateProfessionalPrescription(){
+    const key=document.getElementById('proRxAthlete')?.value||document.getElementById('exerciseAthleteSelect')?.value||'';
+    const record=latestRecordsByAthlete().get(key);
+    if(!key||!record){alert('Pilih atlet yang memiliki data tes terlebih dahulu.');return;}
+
+    const target=document.getElementById('proRxTarget')?.value||'auto';
+    const phase=document.getElementById('proRxPhase')?.value||'specific';
+    const trainingAge=document.getElementById('proRxTrainingAge')?.value||'intermediate';
+    const frequency=Math.max(1,Math.min(6,Number(document.getElementById('proRxFrequency')?.value||3)));
+    const duration=Math.max(20,Number(document.getElementById('proRxDuration')?.value||60));
+    const equipmentProfile=document.getElementById('proRxEquipmentProfile')?.value||'full';
+    const readiness=proResolveReadiness(key,document.getElementById('proRxReadiness')?.value||'auto');
+    const weak=proWeaknesses(record);
+    const context={key,target,phase,trainingAge,frequency,duration,equipmentProfile,readiness,weak};
+    const exercises=proSelectExercises(context);
+    const rpe=proRpeTarget(phase,readiness.state);
+    const sessions=proSessionFocuses(context);
+    professionalRxPlan={id:'PRX'+Date.now().toString(36),createdAt:new Date().toISOString(),record,context,exercises,rpe,sessions};
+
+    exerciseRecommendationCategories=weak.map(x=>x.cat).filter(Boolean);
+    renderProfessionalPrescription();
+    renderExerciseLibrary();
+    addAuditLog('Professional prescription dibuat',`${record.nama||'Atlet'} • ${PRO_RX_PHASE_LABELS[phase]}`);
+  }
+
+  function renderProfessionalPrescription(){
+    const el=document.getElementById('proRxOutput');if(!el)return;
+    const p=professionalRxPlan;
+    if(!p){
+      el.innerHTML='<div class="proRxEmpty">Belum ada prescription yang dihasilkan.</div>';
+      return;
+    }
+    const c=p.context,r=p.record;
+    const readinessClass=c.readiness.state==='red'?'red':c.readiness.state==='yellow'?'yellow':'';
+    const readinessTitle=c.readiness.state==='red'?'Tinjau sebelum sesi intensif':c.readiness.state==='yellow'?'Modifikasi sesi':'Kesiapan operasional';
+    const loadLow=c.duration*p.rpe.low,loadHigh=c.duration*p.rpe.high;
+    const weakHtml=c.weak.length?c.weak.slice(0,3).map((x,i)=>`<div class="proRxPriority"><small>Prioritas ${i+1}</small><b>${escapeHtml(x.label)} • ${x.pct.toFixed(0)}%</b><span>${escapeHtml(x.cat||'Komponen ini belum dipetakan langsung ke kategori exercise.')}</span></div>`).join(''):'<div class="proRxPriority"><b>Komponen tidak tersedia</b><span>Gunakan target manual dan evaluasi hasil tes secara individual.</span></div>';
+    const exHtml=p.exercises.length?p.exercises.map((x,i)=>`<div class="proRxExercise">
+      <div class="proRxExerciseTop"><div><h4>${i+1}. ${escapeHtml(x.ex.name)}</h4><div class="proRxBadges"><span class="proRxBadge">${escapeHtml(x.ex.cat)}</span><span class="proRxBadge">${escapeHtml(x.ex.level)}</span><span class="proRxBadge ${x.evidence==='Tinggi'?'high':'medium'}">Evidence domain: ${escapeHtml(x.evidence)}</span></div></div><span class="proRxScore">${x.score}/100</span></div>
+      <div class="proRxReason">${escapeHtml(x.reasons.join(' • ')||'Dipilih berdasarkan kecocokan konteks.')}</div>
+      <div class="proRxDose"><b>Dosis awal:</b> ${escapeHtml(x.ex.dose)}<br><b>Intensitas:</b> ${escapeHtml(x.ex.intensity)}<br><b>Recovery:</b> ${escapeHtml(x.ex.rest)}</div>
+      <div class="toolbar2" style="margin-top:7px"><button class="btn" onclick="openExerciseModal('${x.ex.id}')">▶ Video & Teknik</button><button class="btn primary" onclick="addExerciseToRx('${x.ex.id}')">+ Resep Sesi</button></div>
+    </div>`).join(''):'<div class="proRxEmpty">Tidak ada exercise yang lolos filter fasilitas dan readiness. Tinjau konteks atau gunakan evaluasi manual.</div>';
+    const sessionsHtml=p.sessions.map((s,i)=>{
+      const sessionRpeLow=c.readiness.state==='red'?2:Math.max(3,p.rpe.low+(i===0?0:-1));
+      const sessionRpeHigh=Math.max(sessionRpeLow+1,p.rpe.high+(i===0?0:-1));
+      return `<div class="proRxSession"><h4>${escapeHtml(s.title)} • ${escapeHtml(s.focus)}</h4><p>${escapeHtml(s.note)}</p><div class="proRxLoad">Target sRPE: ${sessionRpeLow}–${sessionRpeHigh}/10 • Estimasi load ${c.duration*sessionRpeLow}–${c.duration*sessionRpeHigh} AU jika durasi ${c.duration} menit.</div></div>`;
+    }).join('');
+
+    el.innerHTML=`
+      <div class="proRxContextGrid">
+        <div class="proRxMetric"><small>Atlet</small><b>${escapeHtml(r.nama||'-')}</b><span>${escapeHtml(r.cabor||'-')}</span></div>
+        <div class="proRxMetric"><small>Nilai tes</small><b>${Number(r.nilaiAkhir||0).toFixed(1)}%</b><span>${escapeHtml(r.kategoriAkhir||'-')}</span></div>
+        <div class="proRxMetric"><small>Fase</small><b>${escapeHtml(PRO_RX_PHASE_LABELS[c.phase])}</b><span>${c.frequency} sesi per minggu</span></div>
+        <div class="proRxMetric"><small>Target</small><b>${escapeHtml(c.target==='auto'?(c.weak[0]?.cat||'Auto'):c.target)}</b><span>berbasis prioritas dan konteks</span></div>
+        <div class="proRxMetric"><small>Readiness</small><b>${escapeHtml(c.readiness.label)}</b><span>${c.readiness.record?.date?escapeHtml(c.readiness.record.date):'status saat prescription'}</span></div>
+        <div class="proRxMetric"><small>Internal load</small><b>${loadLow}–${loadHigh} AU</b><span>sRPE ${p.rpe.low}–${p.rpe.high} × ${c.duration} menit</span></div>
+      </div>
+      <div class="proRxGate ${readinessClass}"><b>${readinessTitle}.</b> ${escapeHtml(c.readiness.detail)} ${c.readiness.state==='red'?'Sistem membatasi rekomendasi ke exercise berintensitas rendah sampai kondisi ditinjau.':''}</div>
+      <div class="proRxSectionTitle">Prioritas berdasarkan hasil tes</div>
+      <div class="proRxPriorityGrid">${weakHtml}</div>
+      <div class="proRxSectionTitle">Exercise yang dirangking untuk konteks ini</div>
+      <div class="proRxExerciseGrid">${exHtml}</div>
+      <div class="proRxSectionTitle">Rancangan microcycle awal</div>
+      <div class="proRxMicroGrid">${sessionsHtml}</div>
+      <div class="proRxEvidence"><b>Interpretasi ilmiah.</b> Skor 0–100 pada exercise adalah skor kecocokan internal aplikasi, bukan nilai validasi klinis dan bukan probabilitas keberhasilan. Sistem menggabungkan prioritas tes, fase latihan, target adaptasi, pengalaman latihan, fasilitas, serta readiness. Session-RPE digunakan sebagai estimasi beban internal sederhana. Sistem tidak menggunakan training load untuk memprediksi cedera dan tidak menggantikan keputusan strength and conditioning coach, sport scientist, fisioterapis, atau dokter.</div>
+      <div class="proRxFooter">
+        <div class="toolbar2" style="margin:0">
+          <button class="btn primary" onclick="addProfessionalPlanToRx()">+ Masukkan Semua ke Resep Sesi</button>
+          <button class="btn" onclick="copyProfessionalPrescription()">Salin Ringkasan</button>
+          <button class="btn" onclick="saveProfessionalPrescription()">💾 Simpan</button>
+        </div>
+        <span class="proRxTimestamp">Dibuat ${new Date(p.createdAt).toLocaleString('id-ID')}</span>
+      </div>`;
+  }
+
+  function addProfessionalPlanToRx(){
+    if(!professionalRxPlan||!professionalRxPlan.exercises?.length){alert('Generate prescription terlebih dahulu.');return;}
+    let list=loadExerciseRx();
+    const existing=new Set(list.map(x=>x.id));
+    professionalRxPlan.exercises.forEach(item=>{
+      const x=item.ex;
+      if(existing.has(x.id))return;
+      const d=proDoseParts(x.dose);
+      list.push({id:x.id,name:x.name,cat:x.cat,sets:d.sets,reps:d.reps,note:x.goal,customNote:`Professional Rx • ${PRO_RX_PHASE_LABELS[professionalRxPlan.context.phase]}`,addedAt:new Date().toISOString()});
+      existing.add(x.id);
+    });
+    saveExerciseRx(list);
+    setSaveStatus('Professional Rx ditambahkan');
+  }
+
+  function saveProfessionalPrescription(){
+    if(!professionalRxPlan){alert('Generate prescription terlebih dahulu.');return;}
+    const history=loadLocalArray(PROFESSIONAL_RX_STORE);
+    const safe={
+      id:professionalRxPlan.id,
+      createdAt:professionalRxPlan.createdAt,
+      athleteKey:professionalRxPlan.context.key,
+      athleteName:professionalRxPlan.record.nama||'',
+      sport:professionalRxPlan.record.cabor||'',
+      phase:professionalRxPlan.context.phase,
+      target:professionalRxPlan.context.target,
+      readiness:professionalRxPlan.context.readiness.state,
+      exerciseIds:professionalRxPlan.exercises.map(x=>x.ex.id),
+      summary:professionalPrescriptionSummaryText(professionalRxPlan)
+    };
+    history.unshift(safe);
+    localStorage.setItem(PROFESSIONAL_RX_STORE,JSON.stringify(history.slice(0,30)));
+    addAuditLog('Professional prescription disimpan',`${safe.athleteName} • ${PRO_RX_PHASE_LABELS[safe.phase]}`);
+    setSaveStatus('Prescription disimpan');
+  }
+
+  async function copyProfessionalPrescription(){
+    if(!professionalRxPlan){alert('Generate prescription terlebih dahulu.');return;}
+    const txt=professionalPrescriptionSummaryText(professionalRxPlan);
+    try{await navigator.clipboard.writeText(txt);setSaveStatus('Ringkasan disalin');}
+    catch(_){prompt('Salin ringkasan berikut:',txt);}
+  }
+
+  function resetProfessionalPrescription(){
+    professionalRxPlan=null;
+    const out=document.getElementById('proRxOutput');
+    if(out)out.innerHTML='<div class="proRxEmpty">Pilih atlet dan konteks latihan, kemudian klik <b>Generate Professional Prescription</b>.</div>';
+  }
+
+  function syncProRxAthleteOptions(){
+    const sel=document.getElementById('proRxAthlete');if(!sel)return;
+    const cur=sel.value;
+    const rows=[...latestRecordsByAthlete().entries()].sort((a,b)=>String(a[1].nama||'').localeCompare(String(b[1].nama||''),'id'));
+    sel.innerHTML='<option value="">Pilih atlet</option>'+rows.map(([k,a])=>`<option value="${escapeHtml(k)}">${escapeHtml(a.nama||'Tanpa nama')} • ${escapeHtml(a.cabor||'-')}</option>`).join('');
+    const main=document.getElementById('exerciseAthleteSelect');
+    if(cur&&rows.some(([k])=>k===cur))sel.value=cur;
+    else if(main?.value&&rows.some(([k])=>k===main.value))sel.value=main.value;
+    else if(rows.length)sel.value=rows[0][0];
+  }
+
+  function initProfessionalPrescriptionLab(){
+    syncProRxAthleteOptions();
+    const main=document.getElementById('exerciseAthleteSelect');
+    const pro=document.getElementById('proRxAthlete');
+    if(main&&!main.dataset.proRxBound){
+      main.dataset.proRxBound='1';
+      main.addEventListener('change',()=>{if(pro)pro.value=main.value;});
+    }
+    if(pro&&!pro.dataset.mainBound){
+      pro.dataset.mainBound='1';
+      pro.addEventListener('change',()=>{if(main){main.value=pro.value;renderExercisePrescription();}});
+    }
+  }
+
+
   function initExerciseLibrary(){
     const cat=document.getElementById('exerciseCategory'),eq=document.getElementById('exerciseEquipment');
     if(!cat||!eq)return;
@@ -11366,6 +11960,7 @@ Data belum dihapus permanen dan baru akan masuk cloud setelah Anda menekan Simpa
     renderExerciseLibrary();
     renderExerciseRx();
     renderTrainingRxBridge();
+    initProfessionalPrescriptionLab();
   }
 
   function updateExerciseAthleteOptions(){
