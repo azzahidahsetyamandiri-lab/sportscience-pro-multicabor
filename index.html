@@ -3104,6 +3104,18 @@ body.proUiReady .proRxExerciseGrid{max-width:100%}
   .proSidebar,.proMobileMore,.proPopover,.proCollapseArrow{transition:none!important}
 }
 
+
+/* =========================================================
+   V6.1.2 MOBILE OVERLAY FIX
+   Floating legacy cloud badge is hidden on mobile because
+   cloud/save state is already represented in the top bar.
+   ========================================================= */
+@media(max-width:1099px){
+  .cloudSyncBadge{
+    display:none!important;
+  }
+}
+
 </style>
 </head>
 
@@ -11893,7 +11905,7 @@ Data belum dihapus permanen dan baru akan masuk cloud setelah Anda menekan Simpa
   ];
 
 
-  // ===== V6.1.1 PROFESSIONAL UI + TRUE DIRTY STATE =====
+  // ===== V6.1.2 PROFESSIONAL UI + MOBILE OVERLAY FIX =====
   // Video Pexels dikurasi per exercise untuk mengurangi duplikasi dan meningkatkan kualitas visual. Video digunakan sebagai visualisasi edukatif. Video dengan match="pattern"
   // hanya memperlihatkan pola gerak yang berdekatan, bukan demonstrasi identik.
   const EXERCISE_VIDEO_LIBRARY={
