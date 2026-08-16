@@ -2602,7 +2602,7 @@ body.athlete-reload-mode #idAtlet{
 @media print{.cloudSyncBadge{display:none!important}}
 
 /* =========================================================
-   ADMIN CLOUD READ-ONLY V1
+   ADMIN CLOUD ONLINE V2
    Ringkasan admin membaca seluruh row yang diizinkan RLS,
    tanpa menyalin payload gabungan ke localStorage.
    ========================================================= */
@@ -2640,6 +2640,12 @@ body.athlete-reload-mode #idAtlet{
 .adminCloudOwner{display:block;color:#a7f3d0;font-size:7.5px;margin-top:2px}
 .adminCloudEmpty{padding:18px;text-align:center;color:#c8eadb;font-size:9px;line-height:1.5}
 .adminCloudNotice{margin-top:9px;padding:9px 10px;border-left:4px solid #a3e635;border-radius:10px;background:rgba(163,230,53,.075);color:#e7f9ee;font-size:8.8px;line-height:1.5}
+/* ADMIN CLOUD ONLINE V2 */
+.adminPresenceStrip{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:9px 10px;margin-bottom:10px;border-radius:12px;border:1px solid rgba(74,222,128,.28);background:rgba(34,197,94,.075)}
+.adminPresenceStrip b{font-size:9px;color:#fff;margin-right:3px}.presenceChip{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);font-size:8px;color:#d9f7e9}.presenceChip.online{background:rgba(34,197,94,.16);border-color:rgba(74,222,128,.42);color:#eafff0}.presenceDot{width:7px;height:7px;border-radius:50%;background:#64748b;box-shadow:0 0 0 2px rgba(100,116,139,.16)}.presenceChip.online .presenceDot{background:#4ade80;box-shadow:0 0 0 2px rgba(74,222,128,.18)}
+.onlineStatus{display:inline-flex;align-items:center;gap:5px;font-size:8px;font-weight:900;white-space:nowrap}.onlineStatus .presenceDot{width:7px;height:7px}.onlineStatus.online{color:#bbf7d0}.onlineStatus.offline{color:#cbd5e1}
+body.cloud-admin-readonly .dashboardWelcome,
+body.cloud-admin-readonly .commandGrid{display:none!important}
 body.cloud-admin-readonly #toolbarNewAthlete,
 body.cloud-admin-readonly #toolbarRefreshHistory,
 body.cloud-admin-readonly #toolbarDeleteAll{display:none!important}
@@ -2802,18 +2808,20 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
           <div class="adminCloudMetricGrid">
             <div class="adminCloudMetric"><small>Akun Terdaftar</small><b id="adminCloudAccounts">0</b></div>
             <div class="adminCloudMetric"><small>Pelatih</small><b id="adminCloudCoaches">0</b></div>
+            <div class="adminCloudMetric"><small>Pelatih Online</small><b id="adminCloudOnlineCoaches">0</b></div>
             <div class="adminCloudMetric"><small>Individu</small><b id="adminCloudIndividuals">0</b></div>
             <div class="adminCloudMetric"><small>Rekaman Tes</small><b id="adminCloudRecords">0</b></div>
             <div class="adminCloudMetric"><small>Atlet Unik</small><b id="adminCloudUnique">0</b></div>
             <div class="adminCloudMetric"><small>Perlu Ditinjau</small><b id="adminCloudReview">0</b></div>
           </div>
+          <div id="adminPresenceStrip" class="adminPresenceStrip"><b>● Pengguna online sekarang</b><span class="presenceChip">Menunggu koneksi presence…</span></div>
 
           <div class="adminCloudSection">
             <div class="adminCloudSectionHead"><b>Daftar Akun Cloud</b><span id="adminCloudAccountInfo">0 akun</span></div>
             <div class="adminCloudTableWrap">
               <table class="adminCloudTable">
-                <thead><tr><th>Nama / Email</th><th>Role</th><th>Status</th><th class="num">Rekaman</th><th class="num">Atlet</th><th>Sinkron Terakhir</th></tr></thead>
-                <tbody id="adminCloudAccountBody"><tr><td colspan="6" class="adminCloudEmpty">Data cloud belum dimuat.</td></tr></tbody>
+                <thead><tr><th>Nama / Email</th><th>Koneksi</th><th>Role</th><th>Status</th><th class="num">Rekaman</th><th class="num">Atlet</th><th>Sinkron Terakhir</th></tr></thead>
+                <tbody id="adminCloudAccountBody"><tr><td colspan="7" class="adminCloudEmpty">Data cloud belum dimuat.</td></tr></tbody>
               </table>
             </div>
           </div>
@@ -2831,7 +2839,7 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
               </table>
             </div>
           </div>
-          <div class="adminCloudNotice"><b>Tahap keamanan V1:</b> admin hanya membaca data cloud pada halaman Ringkasan. Fitur edit dan hapus lintas akun belum diaktifkan. Modul operasional pelatih sengaja disembunyikan pada mode admin ini agar tidak terjadi perubahan lokal yang disangka sebagai perubahan data cloud.</div>
+          <div class="adminCloudNotice"><b>Tahap keamanan V2:</b> admin hanya membaca data cloud pada halaman Ringkasan. Fitur edit dan hapus lintas akun belum diaktifkan. Modul operasional pelatih sengaja disembunyikan pada mode admin ini agar tidak terjadi perubahan lokal yang disangka sebagai perubahan data cloud.</div>
         </div>
 
         <div class="commandGrid">
@@ -4549,6 +4557,8 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
   let adminCloudRows = [];
   let adminCloudAthletes = [];
   let adminCloudLoadedAt = null;
+  let cloudPresenceChannel = null;
+  let cloudPresenceUsers = new Map();
 
   const nativeStorageSetItem = Storage.prototype.setItem;
   const nativeStorageRemoveItem = Storage.prototype.removeItem;
@@ -4681,6 +4691,86 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
     }));
   }
 
+  function presenceSnapshot(){
+    const state=cloudPresenceChannel?.presenceState?.()||{};
+    const map=new Map();
+    Object.values(state).forEach(list=>{
+      (Array.isArray(list)?list:[]).forEach(item=>{
+        const uid=String(item?.user_id||'');
+        if(uid)map.set(uid,item);
+      });
+    });
+    cloudPresenceUsers=map;
+    return map;
+  }
+
+  function isCloudUserOnline(userId){
+    return cloudPresenceUsers.has(String(userId||''));
+  }
+
+  function renderAdminPresence(){
+    const strip=document.getElementById('adminPresenceStrip');
+    if(!strip||!isCloudAdmin())return;
+    const entries=[...cloudPresenceUsers.values()]
+      .filter(p=>String(p?.role||'').toLowerCase()!=='admin')
+      .sort((a,b)=>String(a?.full_name||'').localeCompare(String(b?.full_name||''),'id'));
+    if(!entries.length){
+      strip.innerHTML='<b>● Pengguna online sekarang</b><span class="presenceChip">Belum ada pelatih/individu lain yang online</span>';
+      return;
+    }
+    strip.innerHTML='<b>● Pengguna online sekarang</b>'+entries.map(p=>
+      `<span class="presenceChip online"><span class="presenceDot"></span>${cloudHtml(p.full_name||'Pengguna')} • ${cloudHtml(p.role||'-')}</span>`
+    ).join('');
+  }
+
+  async function initCloudPresence(){
+    if(!cloudReady||!cloudUser||!cloudProfile)return false;
+    const client=getCloudClient();
+    if(!client)return false;
+    try{
+      if(cloudPresenceChannel){
+        try{await cloudPresenceChannel.untrack();}catch(_){ }
+        try{await client.removeChannel(cloudPresenceChannel);}catch(_){ }
+      }
+      cloudPresenceUsers=new Map();
+      cloudPresenceChannel=client.channel('sportscience-user-presence',{
+        config:{presence:{key:cloudUser.id}}
+      });
+      const refresh=()=>{
+        presenceSnapshot();
+        renderAdminPresence();
+        if(isCloudAdmin())renderAdminCloudPanel();
+      };
+      cloudPresenceChannel
+        .on('presence',{event:'sync'},refresh)
+        .on('presence',{event:'join'},refresh)
+        .on('presence',{event:'leave'},refresh);
+      cloudPresenceChannel.subscribe(async status=>{
+        if(status==='SUBSCRIBED'){
+          await cloudPresenceChannel.track({
+            user_id:cloudUser.id,
+            full_name:cloudProfile?.full_name||'Pengguna',
+            role:cloudProfile?.role||'user',
+            online_at:new Date().toISOString()
+          });
+        }
+      });
+      return true;
+    }catch(err){
+      console.warn('Presence tidak aktif:',err);
+      return false;
+    }
+  }
+
+  async function stopCloudPresence(){
+    const client=getCloudClient();
+    if(!cloudPresenceChannel)return;
+    try{await cloudPresenceChannel.untrack();}catch(_){ }
+    try{if(client)await client.removeChannel(cloudPresenceChannel);}catch(_){ }
+    cloudPresenceChannel=null;
+    cloudPresenceUsers=new Map();
+  }
+
   function updateCloudIdentityUI(){
     const logged=document.getElementById('loggedUserMini');
     const source=document.getElementById('dataSourceMini');
@@ -4713,6 +4803,7 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
     return {
       accounts:rows.length,
       coaches:rows.filter(r=>String(r.role).toLowerCase()==='pelatih').length,
+      onlineCoaches:rows.filter(r=>String(r.role).toLowerCase()==='pelatih' && isCloudUserOnline(r.user_id)).length,
       individuals:rows.filter(r=>String(r.role).toLowerCase()==='individu').length,
       admins:rows.filter(r=>String(r.role).toLowerCase()==='admin').length,
       records:records.length,
@@ -4726,8 +4817,13 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
     const info=document.getElementById('adminCloudAccountInfo');
     const ownerFilter=document.getElementById('adminCloudOwnerFilter');
     if(!body)return;
-    const rows=adminCloudRows||[];
-    if(info)info.textContent=`${rows.length} akun`;
+    const rows=[...(adminCloudRows||[])].sort((a,b)=>{
+      const ao=isCloudUserOnline(a.user_id)?1:0, bo=isCloudUserOnline(b.user_id)?1:0;
+      if(ao!==bo)return bo-ao;
+      return String(a.full_name||a.email||'').localeCompare(String(b.full_name||b.email||''),'id');
+    });
+    const onlineCount=rows.filter(r=>isCloudUserOnline(r.user_id)).length;
+    if(info)info.textContent=`${rows.length} akun • ${onlineCount} online`;
     if(ownerFilter){
       const current=ownerFilter.value;
       ownerFilter.innerHTML='<option value="">Semua pemilik data</option>'+rows
@@ -4736,15 +4832,17 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
       if([...ownerFilter.options].some(o=>o.value===current))ownerFilter.value=current;
     }
     if(!rows.length){
-      body.innerHTML='<tr><td colspan="6" class="adminCloudEmpty">Tidak ada row yang dapat dibaca dari Supabase.</td></tr>';
+      body.innerHTML='<tr><td colspan="7" class="adminCloudEmpty">Tidak ada row yang dapat dibaca dari Supabase.</td></tr>';
       return;
     }
     body.innerHTML=rows.map(row=>{
       const records=extractCloudAthletes(row);
       const unique=new Set(records.map(a=>cloudRecordIdentity(row.user_id,a))).size;
       const updated=row.updated_at?new Date(row.updated_at).toLocaleString('id-ID'):'-';
+      const online=isCloudUserOnline(row.user_id);
       return `<tr>
         <td><b>${cloudHtml(row.full_name||'-')}</b><br><small>${cloudHtml(row.email||'-')}</small></td>
+        <td><span class="onlineStatus ${online?'online':'offline'}"><span class="presenceDot"></span>${online?'ONLINE':'Offline'}</span></td>
         <td>${cloudHtml(row.role||'-')}</td>
         <td>${cloudHtml(row.approval_status||'-')}</td>
         <td class="num"><b>${records.length}</b></td>
@@ -4793,12 +4891,14 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
     const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
     set('adminCloudAccounts',sum.accounts);
     set('adminCloudCoaches',sum.coaches);
+    set('adminCloudOnlineCoaches',sum.onlineCoaches);
     set('adminCloudIndividuals',sum.individuals);
     set('adminCloudRecords',sum.records);
     set('adminCloudUnique',sum.unique);
     set('adminCloudReview',sum.review);
     const loaded=document.getElementById('adminCloudLoadedAt');
     if(loaded)loaded.textContent=adminCloudLoadedAt?`Diperbarui ${adminCloudLoadedAt.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}`:'Belum dimuat';
+    renderAdminPresence();
     renderAdminCloudAccounts();
     renderAdminCloudRecords();
   }
@@ -4939,7 +5039,7 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
     updateCloudIdentityUI();
     const previousUser=nativeStorageGet(CLOUD_LAST_USER_STORE);
 
-    // Admin Cloud V1 bersifat baca-saja. Jangan memasukkan gabungan payload ke localStorage.
+    // Admin Cloud V2 bersifat baca-saja dan menampilkan presence pengguna. Jangan memasukkan gabungan payload ke localStorage.
     if(isCloudAdmin()){
       if(previousUser && previousUser!==cloudUser.id){
         applyCloudPayload({});
@@ -5102,6 +5202,7 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
       cloudUser=session.user;
       const ready=await cloudLoadForCurrentUser();
       if(!ready)return false;
+      await initCloudPresence();
       overlay.classList.add('hidden');
       document.body.classList.remove('login-active');
       return true;
@@ -5114,6 +5215,7 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
   async function logoutApp(){
     try{
       await cloudPushNow(false);
+      await stopCloudPresence();
       const client=getCloudClient();
       if(client)await client.auth.signOut();
     }catch(err){console.warn(err);}
@@ -16020,6 +16122,7 @@ ${css}
     const authClient=getCloudClient();
     authClient?.auth.onAuthStateChange((event,session)=>{
       if(event==='SIGNED_OUT'){
+        cloudPresenceChannel=null;cloudPresenceUsers=new Map();
         cloudUser=null;cloudProfile=null;cloudReady=false;adminCloudRows=[];adminCloudAthletes=[];adminCloudLoadedAt=null;
         updateCloudIdentityUI();
         document.getElementById('loginOverlay')?.classList.remove('hidden');
