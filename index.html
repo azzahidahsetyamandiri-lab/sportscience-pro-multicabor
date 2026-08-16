@@ -2850,7 +2850,7 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
               </table>
             </div>
           </div>
-          <div class="adminCloudNotice"><b>Mode Admin Aktif V3:</b> klik nama akun untuk melihat detail. Tombol <b>Kelola</b> memindahkan workspace aplikasi ke akun tersebut sehingga seluruh modul, input tes, edit, program latihan, dan analisis bekerja pada data pemilik terpilih. Gunakan <b>Data Admin</b> untuk kembali menginput tes milik admin sendiri.</div>
+          <div class="adminCloudNotice"><b>Admin Safe V4:</b> perpindahan akun hanya membaca data dan tidak pernah otomatis menulis ke cloud. Perubahan admin baru tersimpan setelah tombol <b>Simpan Perubahan</b> ditekan. Setiap perubahan cloud memiliki snapshot otomatis dan penghapusan masuk ke <b>Sampah</b>.</div>
         </div>
 
         <div class="commandGrid">
@@ -4566,7 +4566,10 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
   const CLOUD_LAST_USER_STORE = 'sportscience_cloud_last_user';
   const ADMIN_ACTIVE_OWNER_SESSION = 'sportscience_admin_active_owner_v3';
   const ADMIN_PENDING_ACTION_SESSION = 'sportscience_admin_pending_action_v3';
-  const ADMIN_WORKSPACE_OWNER_LOCAL = 'sportscience_admin_workspace_owner_v3';
+  const ADMIN_WORKSPACE_OWNER_LOCAL = 'sportscience_admin_workspace_owner_v4';
+  const ADMIN_WORKSPACE_CACHE_PREFIX = 'ss_admin_workspace_cache_v4_';
+  const ADMIN_TRASH_KEY = 'sportscience_deleted_records_v1';
+  const CLOUD_HISTORY_TABLE = 'sportscience_payload_history';
   const CLOUD_CONFIG_KEYS = new Set([CLOUD_URL_STORE,CLOUD_KEY_STORE,CLOUD_LAST_USER_STORE,ADMIN_WORKSPACE_OWNER_LOCAL]);
 
   let cloudClient = null;
@@ -4584,6 +4587,9 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
   let cloudPresenceChannel = null;
   let cloudPresenceUsers = new Map();
   let adminActiveOwnerId = null;
+  let adminWorkspaceDirty = false;
+  let adminWorkspaceBaseUpdatedAt = '';
+  let adminWorkspaceLoading = false;
 
   const nativeStorageSetItem = Storage.prototype.setItem;
   const nativeStorageRemoveItem = Storage.prototype.removeItem;
@@ -4629,12 +4635,18 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
 
   Storage.prototype.setItem=function(key,value){
     nativeStorageSetItem.call(this,key,value);
-    if(this===window.localStorage && isAppDataKey(String(key)) && !cloudApplyingRemote) cloudScheduleSync();
+    if(this===window.localStorage && isAppDataKey(String(key)) && !cloudApplyingRemote){
+      if(isCloudAdmin() && cloudReady) markAdminWorkspaceDirty();
+      else cloudScheduleSync();
+    }
   };
 
   Storage.prototype.removeItem=function(key){
     nativeStorageRemoveItem.call(this,key);
-    if(this===window.localStorage && isAppDataKey(String(key)) && !cloudApplyingRemote) cloudScheduleSync();
+    if(this===window.localStorage && isAppDataKey(String(key)) && !cloudApplyingRemote){
+      if(isCloudAdmin() && cloudReady) markAdminWorkspaceDirty();
+      else cloudScheduleSync();
+    }
   };
 
   function collectCloudPayload(){
@@ -4698,6 +4710,99 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
     return own?'Data Admin':`${row.full_name||row.email||'Pengguna'} • ${row.role||'user'}`;
   }
 
+  function adminWorkspaceCacheKey(ownerId){return ADMIN_WORKSPACE_CACHE_PREFIX+String(ownerId||'');}
+
+  function readAdminWorkspaceCache(ownerId){
+    try{
+      const raw=nativeStorageGet(adminWorkspaceCacheKey(ownerId));
+      if(!raw)return null;
+      const parsed=JSON.parse(raw);
+      return parsed&&typeof parsed==='object'?parsed:null;
+    }catch(_){return null;}
+  }
+
+  function writeAdminWorkspaceCache(){
+    if(!isCloudAdmin()||!cloudUser||adminWorkspaceLoading)return;
+    const ownerId=adminWorkspaceOwnerId();
+    if(!ownerId)return;
+    const cache={
+      ownerId,
+      payload:collectCloudPayload(),
+      baseUpdatedAt:adminWorkspaceBaseUpdatedAt||nativeStorageGet(cloudMarkerKey(ownerId))||'',
+      savedAt:new Date().toISOString(),
+      dirty:adminWorkspaceDirty===true
+    };
+    try{nativeStorageSetItem.call(localStorage,adminWorkspaceCacheKey(ownerId),JSON.stringify(cache));}catch(_){ }
+  }
+
+  function clearAdminWorkspaceCache(ownerId){
+    try{nativeStorageRemoveItem.call(localStorage,adminWorkspaceCacheKey(ownerId));}catch(_){ }
+  }
+
+  function updateAdminDirtyUI(){
+    if(!isCloudAdmin())return;
+    const syncBtn=document.getElementById('toolbarCloudSync');
+    const source=document.getElementById('dataSourceMini');
+    const title=document.getElementById('adminWorkspaceTitle');
+    if(syncBtn)syncBtn.textContent=adminWorkspaceDirty?'☁ Simpan Perubahan *':'☁ Simpan Workspace';
+    if(source){
+      source.textContent=`☁ Workspace: ${adminWorkspaceLabel()}${adminWorkspaceDirty?' • BELUM DISIMPAN':''}`;
+      source.className='statusMini '+(adminWorkspaceDirty?'warn':'ok');
+    }
+    if(title)title.textContent=`Workspace aktif: ${adminWorkspaceLabel()}${adminWorkspaceDirty?' • perubahan belum disimpan':''}`;
+  }
+
+  function markAdminWorkspaceDirty(){
+    if(!isCloudAdmin()||!cloudReady||cloudApplyingRemote||adminWorkspaceLoading)return;
+    adminWorkspaceDirty=true;
+    writeAdminWorkspaceCache();
+    updateAdminDirtyUI();
+    setCloudStatus(`☁ Perubahan lokal belum disimpan • ${adminWorkspaceLabel()}`,'syncing');
+  }
+
+  function setAdminWorkspaceClean(updatedAt=''){
+    adminWorkspaceDirty=false;
+    adminWorkspaceBaseUpdatedAt=updatedAt||'';
+    const ownerId=adminWorkspaceOwnerId();
+    if(ownerId){
+      nativeStorageSetItem.call(localStorage,cloudMarkerKey(ownerId),adminWorkspaceBaseUpdatedAt);
+      clearAdminWorkspaceCache(ownerId);
+    }
+    updateAdminDirtyUI();
+  }
+
+  function adminGuardUnsaved(actionLabel='berpindah workspace'){
+    if(!isCloudAdmin()||!adminWorkspaceDirty)return true;
+    alert(`Ada perubahan pada ${adminWorkspaceLabel()} yang BELUM disimpan.
+
+Klik tombol "Simpan Perubahan" terlebih dahulu sebelum ${actionLabel}.
+
+Sistem sengaja membatalkan perpindahan agar data tidak tertimpa.`);
+    return false;
+  }
+
+  function chooseAdminWorkspacePayload(row){
+    const remotePayload=row?.payload&&typeof row.payload==='object'?row.payload:{};
+    const cache=readAdminWorkspaceCache(row?.user_id);
+    if(!cache||!cache.dirty||!cache.payload)return {payload:remotePayload,dirty:false};
+    const sameBase=String(cache.baseUpdatedAt||'')===String(row?.updated_at||'');
+    if(!sameBase){
+      // Cloud sudah berubah. Draft tetap disimpan sebagai cache darurat tetapi tidak dimuat otomatis.
+      return {payload:remotePayload,dirty:false,staleCache:true};
+    }
+    const differs=cloudPayloadSignature(cache.payload)!==cloudPayloadSignature(remotePayload);
+    if(!differs)return {payload:remotePayload,dirty:false};
+    const restore=confirm(`Ditemukan draft lokal yang belum sempat disimpan untuk ${row?.full_name||row?.email||'workspace ini'}.
+
+Pulihkan draft tersebut?
+
+OK = pulihkan draft lokal
+Batal = gunakan versi cloud.`);
+    if(restore)return {payload:cache.payload,dirty:true};
+    clearAdminWorkspaceCache(row?.user_id);
+    return {payload:remotePayload,dirty:false};
+  }
+
   function setAdminPendingAction(action){
     if(!action){sessionStorage.removeItem(ADMIN_PENDING_ACTION_SESSION);return;}
     sessionStorage.setItem(ADMIN_PENDING_ACTION_SESSION,JSON.stringify(action));
@@ -4756,33 +4861,47 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
     const target=(adminCloudRows||[]).find(r=>String(r.user_id)===ownerId);
     if(!target){alert('Akun tujuan tidak ditemukan atau tidak dapat dibaca oleh admin.');return false;}
 
-    const current=adminWorkspaceOwnerId();
-    if(current && nativeStorageGet(ADMIN_WORKSPACE_OWNER_LOCAL)===current && String(current)!==ownerId){
-      try{await cloudPushNow(false);}catch(err){
-        if(!confirm('Workspace aktif belum berhasil disimpan ke cloud. Tetap berpindah?\n\n'+(err.message||err)))return false;
+    const current=String(adminWorkspaceOwnerId()||'');
+    if(current && current!==ownerId && !adminGuardUnsaved('berpindah ke akun lain'))return false;
+    if(current===ownerId && pendingAction){
+      closeAdminAccountDetail();
+      return executeAdminWorkspaceAction(pendingAction);
+    }
+    if(current===ownerId && adminWorkspaceDirty && !pendingAction){
+      alert('Workspace ini memiliki perubahan yang belum disimpan. Simpan terlebih dahulu sebelum memuat ulang dari cloud.');
+      return false;
+    }
+
+    adminWorkspaceLoading=true;
+    try{
+      sessionStorage.setItem(ADMIN_ACTIVE_OWNER_SESSION,ownerId);
+      adminActiveOwnerId=ownerId;
+      setAdminPendingAction(null);
+      const chosen=chooseAdminWorkspacePayload(target);
+      applyCloudPayload(chosen.payload||{});
+      nativeStorageSetItem.call(localStorage,ADMIN_WORKSPACE_OWNER_LOCAL,ownerId);
+      adminWorkspaceBaseUpdatedAt=target.updated_at||'';
+      nativeStorageSetItem.call(localStorage,cloudMarkerKey(ownerId),adminWorkspaceBaseUpdatedAt);
+      adminWorkspaceDirty=chosen.dirty===true;
+      reloadWorkspaceRuntimeFromStorage(true);
+      updateCloudIdentityUI();
+      renderAdminCloudPanel();
+      closeAdminAccountDetail();
+      updateAdminDirtyUI();
+      if(chosen.staleCache){
+        showProfessionalToast('Draft lama diamankan','Cloud sudah berubah. Draft lama tidak dimuat agar data terbaru tidak tertimpa.');
       }
+
+      const actionHandled=executeAdminWorkspaceAction(pendingAction);
+      if(!actionHandled){
+        showModule('moduleDashboard',false);
+        history.replaceState(null,'','#ringkasan');
+      }
+      if(showMessage)showProfessionalToast('Workspace admin aktif',`${target.full_name||target.email} dibuka dalam mode aman. Perubahan tidak dikirim sampai tombol Simpan ditekan.`);
+      return true;
+    }finally{
+      adminWorkspaceLoading=false;
     }
-
-    // Ganti workspace secara langsung tanpa location.reload().
-    sessionStorage.setItem(ADMIN_ACTIVE_OWNER_SESSION,ownerId);
-    adminActiveOwnerId=ownerId;
-    setAdminPendingAction(null);
-    applyCloudPayload(target.payload&&typeof target.payload==='object'?target.payload:{});
-    nativeStorageSetItem.call(localStorage,ADMIN_WORKSPACE_OWNER_LOCAL,ownerId);
-    nativeStorageSetItem.call(localStorage,cloudMarkerKey(ownerId),target.updated_at||'');
-    reloadWorkspaceRuntimeFromStorage(true);
-    updateCloudIdentityUI();
-    renderAdminCloudPanel();
-    closeAdminAccountDetail();
-
-    const actionHandled=executeAdminWorkspaceAction(pendingAction);
-    if(!actionHandled){
-      showModule('moduleDashboard',false);
-      history.replaceState(null,'','#ringkasan');
-    }
-
-    if(showMessage)showProfessionalToast('Workspace admin aktif',`${target.full_name||target.email} sekarang menjadi pemilik data aktif.`);
-    return true;
   }
 
   function closeAdminAccountDetail(){document.getElementById('adminAccountModal')?.classList.remove('active');}
@@ -4809,6 +4928,8 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
         <button class="btn primary" onclick="switchAdminWorkspace('${cloudHtml(row.user_id)}',null,true)">${active?'↻ Muat Ulang Workspace':'🛠 Kelola Workspace'}</button>
         <button class="btn" onclick="switchAdminWorkspace('${cloudHtml(row.user_id)}',{action:'new'},true)">➕ Input Tes untuk Akun Ini</button>
         <button class="btn" onclick="adminFilterOwner('${cloudHtml(row.user_id)}')">📋 Lihat Rekaman</button>
+        <button class="btn" onclick="openAdminTrash('${cloudHtml(row.user_id)}')">🗑 Sampah</button>
+        <button class="btn" onclick="openAdminHistory('${cloudHtml(row.user_id)}')">🛡 Riwayat Backup</button>
         ${!own?'<button class="btn" onclick="switchAdminWorkspace(cloudUser.id,null,true)">🏠 Data Admin</button>':''}
       </div>`;
     document.getElementById('adminAccountModal')?.classList.add('active');
@@ -4826,55 +4947,152 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
     return switchAdminWorkspace(ownerId,{action,recordId},true);
   }
 
+  function parseDeletedRecords(payload){
+    const list=parseCloudPayloadValue(payload,ADMIN_TRASH_KEY,[]);
+    return Array.isArray(list)?list:[];
+  }
+
+  async function adminUpdatePayloadDirect(ownerId,payload,knownUpdatedAt,statusText='Memperbarui data…'){
+    const client=getCloudClient();
+    if(!client)throw new Error('Supabase belum siap.');
+    setCloudStatus('☁ '+statusText,'syncing');
+    let q=client.from(CLOUD_TABLE).update({payload,updated_at:new Date().toISOString()}).eq('user_id',ownerId);
+    if(knownUpdatedAt)q=q.eq('updated_at',knownUpdatedAt);
+    const {data,error}=await q.select('user_id,payload,updated_at,approval_status').maybeSingle();
+    if(error)throw error;
+    if(!data)throw new Error('Konflik data: versi cloud sudah berubah. Klik Refresh Cloud lalu ulangi tindakan.');
+    const idx=adminCloudRows.findIndex(r=>String(r.user_id)===String(ownerId));
+    if(idx>=0)adminCloudRows[idx]={...adminCloudRows[idx],payload:data.payload,updated_at:data.updated_at};
+    adminCloudAthletes=adminCloudRows.flatMap(extractCloudAthletes);
+    if(String(adminWorkspaceOwnerId())===String(ownerId)){
+      adminWorkspaceLoading=true;
+      try{
+        applyCloudPayload(data.payload||{});
+        reloadWorkspaceRuntimeFromStorage(true);
+        setAdminWorkspaceClean(data.updated_at||'');
+      }finally{adminWorkspaceLoading=false;}
+    }
+    renderAdminCloudPanel();
+    return data;
+  }
+
   async function adminDeleteCloudRecord(ownerId,recordId){
     if(!isCloudAdmin())return false;
+    if(String(adminWorkspaceOwnerId())===String(ownerId) && adminWorkspaceDirty){
+      alert('Workspace pemilik ini memiliki perubahan yang belum disimpan. Simpan Perubahan terlebih dahulu sebelum menghapus rekaman dari dashboard cloud.');
+      return false;
+    }
     const row=(adminCloudRows||[]).find(r=>String(r.user_id)===String(ownerId));
     if(!row){alert('Pemilik data tidak ditemukan.');return false;}
     const records=extractCloudAthletes(row).map(({_cloudOwnerId,_cloudOwnerName,_cloudOwnerEmail,_cloudOwnerRole,...r})=>r);
     const target=records.find(r=>String(r.id)===String(recordId));
     if(!target){alert('Rekaman tes tidak ditemukan.');return false;}
-    if(!confirm(`Hapus rekaman tes ${target.nama||'atlet'} (${target.tglTes||'-'}) dari akun ${row.full_name||row.email}?\n\nAkun pengguna tidak akan dihapus.`))return false;
+    if(!confirm(`Pindahkan rekaman ${target.nama||'atlet'} (${target.tglTes||'-'}) ke Sampah?\n\nData TIDAK dihapus permanen dan dapat dipulihkan oleh admin.`))return false;
     const next=records.filter(r=>String(r.id)!==String(recordId));
     const payload={...(row.payload&&typeof row.payload==='object'?row.payload:{})};
+    const trash=parseDeletedRecords(payload);
+    trash.unshift({
+      trash_id:`trash_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
+      deleted_at:new Date().toISOString(),
+      deleted_by:cloudUser?.id||null,
+      deleted_by_email:cloudUser?.email||'',
+      record:target
+    });
     payload['tes_fisik_atlet_final_v1']=JSON.stringify(next);
-    const client=getCloudClient();
+    payload[ADMIN_TRASH_KEY]=JSON.stringify(trash.slice(0,500));
     try{
-      setCloudStatus('☁ Admin: menghapus rekaman…','syncing');
-      let deleteQuery=client.from(CLOUD_TABLE)
-        .update({payload,updated_at:new Date().toISOString()})
-        .eq('user_id',ownerId);
-      if(row.updated_at)deleteQuery=deleteQuery.eq('updated_at',row.updated_at);
-      const {data,error}=await deleteQuery
-        .select('user_id,payload,updated_at')
-        .maybeSingle();
-      if(error)throw error;
-      if(!data)throw new Error('Konflik data: payload pengguna berubah sejak dashboard terakhir dimuat. Klik Refresh Cloud sebelum menghapus.');
-      const idx=adminCloudRows.findIndex(r=>String(r.user_id)===String(ownerId));
-      if(idx>=0)adminCloudRows[idx]={...adminCloudRows[idx],payload:data.payload,updated_at:data.updated_at};
-      adminCloudAthletes=adminCloudRows.flatMap(extractCloudAthletes);
-      if(String(adminWorkspaceOwnerId())===String(ownerId)){
-        applyCloudPayload(data.payload||{});
-        nativeStorageSetItem.call(localStorage,ADMIN_WORKSPACE_OWNER_LOCAL,ownerId);
-        nativeStorageSetItem.call(localStorage,cloudMarkerKey(ownerId),data.updated_at||'');
-        reloadWorkspaceRuntimeFromStorage(true);
-        updateCloudIdentityUI();
-        renderAdminCloudPanel();
-        showModule('moduleDashboard',false);
-        history.replaceState(null,'','#ringkasan');
-        setCloudStatus('☁ Rekaman berhasil dihapus','online');
-        showProfessionalToast('Rekaman tes dihapus',`${target.nama||'Atlet'} • ${row.full_name||row.email}`);
-        return true;
-      }
-      renderAdminCloudPanel();
-      setCloudStatus('☁ Rekaman berhasil dihapus','online');
-      showProfessionalToast('Rekaman tes dihapus',`${target.nama||'Atlet'} • ${row.full_name||row.email}`);
+      await adminUpdatePayloadDirect(ownerId,payload,row.updated_at,'Memindahkan rekaman ke Sampah…');
+      setCloudStatus('☁ Rekaman dipindahkan ke Sampah','online');
+      showProfessionalToast('Rekaman diamankan di Sampah',`${target.nama||'Atlet'} dapat dipulihkan kembali.`);
       return true;
     }catch(err){
-      console.error(err);
-      alert('Gagal menghapus rekaman. Pastikan policy UPDATE admin V3 sudah dijalankan di Supabase.\n\n'+(err.message||err));
-      setCloudStatus('☁ Admin tidak memiliki izin update','error');
+      console.error(err);alert('Gagal memindahkan rekaman ke Sampah.\n\n'+(err.message||err));return false;
+    }
+  }
+
+  function openAdminTrash(ownerId){
+    const row=(adminCloudRows||[]).find(r=>String(r.user_id)===String(ownerId));
+    if(!row)return;
+    const trash=parseDeletedRecords(row.payload);
+    document.getElementById('adminModalName').textContent='Sampah Data • '+(row.full_name||row.email||'Pengguna');
+    document.getElementById('adminModalEmail').textContent='Rekaman di sini belum dihapus permanen.';
+    document.getElementById('adminModalBody').innerHTML=trash.length?`
+      <div class="adminPermissionNote"><b>${trash.length} rekaman terhapus.</b> Klik Pulihkan untuk mengembalikan rekaman ke database atlet pemilik.</div>
+      <div class="adminCloudTableWrap" style="max-height:52vh"><table class="adminCloudTable"><thead><tr><th>Atlet</th><th>Tanggal Tes</th><th>Dihapus</th><th>Aksi</th></tr></thead><tbody>${trash.map(item=>`<tr><td><b>${cloudHtml(item?.record?.nama||'-')}</b><br><small>${cloudHtml(item?.record?.cabor||'-')}</small></td><td>${cloudHtml(item?.record?.tglTes||'-')}</td><td>${item.deleted_at?new Date(item.deleted_at).toLocaleString('id-ID'):'-'}</td><td><button class="adminMiniBtn" onclick="adminRestoreTrash('${cloudHtml(ownerId)}','${cloudHtml(item.trash_id)}')">↩ Pulihkan</button></td></tr>`).join('')}</tbody></table></div>`:
+      '<div class="adminCloudEmpty">Sampah kosong.</div>';
+    document.getElementById('adminAccountModal')?.classList.add('active');
+  }
+
+  async function adminRestoreTrash(ownerId,trashId){
+    if(String(adminWorkspaceOwnerId())===String(ownerId) && adminWorkspaceDirty){
+      alert('Simpan Perubahan workspace ini terlebih dahulu sebelum memulihkan data dari Sampah.');
       return false;
     }
+    const row=(adminCloudRows||[]).find(r=>String(r.user_id)===String(ownerId));
+    if(!row)return false;
+    const payload={...(row.payload&&typeof row.payload==='object'?row.payload:{})};
+    const trash=parseDeletedRecords(payload);
+    const item=trash.find(x=>String(x.trash_id)===String(trashId));
+    if(!item?.record){alert('Rekaman sampah tidak ditemukan.');return false;}
+    const records=extractCloudAthletes(row).map(({_cloudOwnerId,_cloudOwnerName,_cloudOwnerEmail,_cloudOwnerRole,...r})=>r);
+    if(records.some(r=>String(r.id)===String(item.record.id))){alert('Rekaman dengan ID yang sama sudah ada di data aktif.');return false;}
+    if(!confirm(`Pulihkan ${item.record.nama||'rekaman ini'} ke data aktif?`))return false;
+    records.push(item.record);
+    payload['tes_fisik_atlet_final_v1']=JSON.stringify(records);
+    payload[ADMIN_TRASH_KEY]=JSON.stringify(trash.filter(x=>String(x.trash_id)!==String(trashId)));
+    try{
+      await adminUpdatePayloadDirect(ownerId,payload,row.updated_at,'Memulihkan rekaman dari Sampah…');
+      showProfessionalToast('Data dipulihkan',item.record.nama||'Rekaman berhasil kembali.');
+      openAdminTrash(ownerId);
+      return true;
+    }catch(err){alert('Gagal memulihkan data.\n\n'+(err.message||err));return false;}
+  }
+
+  async function openAdminHistory(ownerId){
+    if(!isCloudAdmin())return;
+    const row=(adminCloudRows||[]).find(r=>String(r.user_id)===String(ownerId));
+    const client=getCloudClient();
+    document.getElementById('adminModalName').textContent='Riwayat Backup • '+(row?.full_name||row?.email||'Pengguna');
+    document.getElementById('adminModalEmail').textContent='Snapshot otomatis dibuat sebelum setiap perubahan payload cloud.';
+    document.getElementById('adminModalBody').innerHTML='<div class="adminCloudEmpty">Memuat riwayat backup…</div>';
+    document.getElementById('adminAccountModal')?.classList.add('active');
+    try{
+      const {data,error}=await client.from(CLOUD_HISTORY_TABLE)
+        .select('id,owner_user_id,source_updated_at,changed_at,changed_by')
+        .eq('owner_user_id',ownerId).order('changed_at',{ascending:false}).limit(30);
+      if(error)throw error;
+      const list=Array.isArray(data)?data:[];
+      document.getElementById('adminModalBody').innerHTML=list.length?`
+        <div class="adminPermissionNote"><b>${list.length} snapshot terbaru.</b> Pulihkan hanya jika diperlukan. Saat restore, versi saat ini juga otomatis dibackup terlebih dahulu.</div>
+        <div class="adminCloudTableWrap" style="max-height:52vh"><table class="adminCloudTable"><thead><tr><th>Waktu Backup</th><th>Versi Sumber</th><th>Aksi</th></tr></thead><tbody>${list.map(h=>`<tr><td>${h.changed_at?new Date(h.changed_at).toLocaleString('id-ID'):'-'}</td><td>${h.source_updated_at?new Date(h.source_updated_at).toLocaleString('id-ID'):'-'}</td><td><button class="adminMiniBtn" onclick="adminRestoreHistory(${Number(h.id)},'${cloudHtml(ownerId)}')">↩ Pulihkan versi ini</button></td></tr>`).join('')}</tbody></table></div>`:
+        '<div class="adminCloudEmpty">Belum ada snapshot. Snapshot akan mulai tercatat setelah SQL Safe V4 dijalankan.</div>';
+    }catch(err){
+      document.getElementById('adminModalBody').innerHTML=`<div class="adminCloudEmpty">Riwayat backup belum tersedia. Jalankan SQL Safe V4 di Supabase terlebih dahulu.<br><br>${cloudHtml(err.message||err)}</div>`;
+    }
+  }
+
+  async function adminRestoreHistory(historyId,ownerId){
+    if(String(adminWorkspaceOwnerId())===String(ownerId) && adminWorkspaceDirty){
+      alert('Workspace ini memiliki perubahan yang belum disimpan. Simpan atau selesaikan perubahan tersebut sebelum melakukan restore backup.');
+      return false;
+    }
+    if(!confirm('Pulihkan seluruh workspace ke versi backup ini?\n\nVersi cloud saat ini akan otomatis dibuatkan snapshot terlebih dahulu.'))return false;
+    try{
+      const client=getCloudClient();
+      setCloudStatus('☁ Memulihkan backup…','syncing');
+      const {error}=await client.rpc('restore_sportscience_payload',{p_history_id:Number(historyId)});
+      if(error)throw error;
+      await loadAdminCloudData(false);
+      const row=(adminCloudRows||[]).find(r=>String(r.user_id)===String(ownerId));
+      if(row && String(adminWorkspaceOwnerId())===String(ownerId)){
+        adminWorkspaceLoading=true;
+        try{applyCloudPayload(row.payload||{});reloadWorkspaceRuntimeFromStorage(true);setAdminWorkspaceClean(row.updated_at||'');}finally{adminWorkspaceLoading=false;}
+      }
+      setCloudStatus('☁ Backup berhasil dipulihkan','online');
+      showProfessionalToast('Backup dipulihkan','Workspace berhasil dikembalikan ke versi yang dipilih.');
+      closeAdminAccountDetail();
+      return true;
+    }catch(err){alert('Gagal memulihkan backup.\n\n'+(err.message||err));return false;}
   }
 
   function handleAdminPendingAction(){
@@ -5018,8 +5236,8 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
       const owner=adminWorkspaceRow();
       const ownerLabel=adminWorkspaceLabel();
       const isOwn=String(adminWorkspaceOwnerId())===String(cloudUser?.id);
-      if(source){source.textContent=`☁ Workspace: ${ownerLabel}`;source.className='statusMini ok';}
-      if(syncBtn){syncBtn.textContent='☁ Simpan Workspace';syncBtn.setAttribute('onclick','cloudSyncNow(true)');}
+      if(source){source.textContent=`☁ Workspace: ${ownerLabel}${adminWorkspaceDirty?' • BELUM DISIMPAN':''}`;source.className='statusMini '+(adminWorkspaceDirty?'warn':'ok');}
+      if(syncBtn){syncBtn.textContent=adminWorkspaceDirty?'☁ Simpan Perubahan *':'☁ Simpan Workspace';syncBtn.setAttribute('onclick','cloudSyncNow(true)');}
       if(homeBtn)homeBtn.style.display=isOwn?'none':'inline-flex';
       if(refreshBtn)refreshBtn.style.display='inline-flex';
       if(newBtn){newBtn.textContent='➕ Input Tes Baru';newBtn.title=`Data baru tersimpan pada ${ownerLabel}`;}
@@ -5098,7 +5316,7 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
         <td class="num"><b>${records.length}</b></td>
         <td class="num">${unique}</td>
         <td>${cloudHtml(updated)}</td>
-        <td><div class="adminActionGroup"><button class="adminMiniBtn" onclick="openAdminAccountDetail('${cloudHtml(row.user_id)}')">Detail</button><button class="adminMiniBtn" onclick="switchAdminWorkspace('${cloudHtml(row.user_id)}',null,true)">Kelola</button><button class="adminMiniBtn" onclick="adminFilterOwner('${cloudHtml(row.user_id)}')">Data</button></div></td>
+        <td><div class="adminActionGroup"><button class="adminMiniBtn" onclick="openAdminAccountDetail('${cloudHtml(row.user_id)}')">Detail</button><button class="adminMiniBtn" onclick="switchAdminWorkspace('${cloudHtml(row.user_id)}',null,true)">Kelola</button><button class="adminMiniBtn" onclick="adminFilterOwner('${cloudHtml(row.user_id)}')">Data</button><button class="adminMiniBtn" onclick="openAdminTrash('${cloudHtml(row.user_id)}')">Sampah</button><button class="adminMiniBtn" onclick="openAdminHistory('${cloudHtml(row.user_id)}')">Backup</button></div></td>
       </tr>`;
     }).join('');
   }
@@ -5184,6 +5402,10 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
 
   function cloudScheduleSync(){
     if(!cloudReady || !cloudUser || cloudApplyingRemote) return;
+    if(isCloudAdmin()){
+      markAdminWorkspaceDirty();
+      return;
+    }
     clearTimeout(cloudSyncTimer);
     setCloudStatus('☁ Menunggu sinkronisasi…','syncing');
     cloudSyncTimer=setTimeout(()=>cloudPushNow().catch(err=>setCloudStatus('☁ Gagal: '+err.message,'error')),500);
@@ -5220,44 +5442,56 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
       if(showMessage) alert('Akun belum disetujui atau data cloud belum siap.');
       return false;
     }
+
+    // Admin V4 tidak pernah menulis cloud dari autosave/background/unload.
+    // Admin hanya menulis setelah menekan tombol Simpan Workspace/Perubahan.
+    if(isCloudAdmin() && !showMessage){
+      if(adminWorkspaceDirty)writeAdminWorkspaceCache();
+      return false;
+    }
+
     const targetUserId=isCloudAdmin()?adminWorkspaceOwnerId():cloudUser.id;
     clearTimeout(cloudSyncTimer);
     setCloudStatus('☁ Menyimpan ke cloud…','syncing');
-    const changes={
-      payload:collectCloudPayload(),
-      updated_at:new Date().toISOString()
-    };
-    let updateQuery=client.from(CLOUD_TABLE)
-      .update(changes)
-      .eq('user_id',targetUserId);
-    // Optimistic concurrency guard untuk admin yang mengelola akun lain.
-    // Jika pelatih melakukan sinkronisasi setelah workspace admin dimuat,
-    // perubahan admin dibatalkan agar payload terbaru tidak tertimpa.
-    if(isCloudAdmin() && String(targetUserId)!==String(cloudUser.id)){
-      const knownVersion=nativeStorageGet(cloudMarkerKey(targetUserId));
+    const payload=collectCloudPayload();
+
+    if(isCloudAdmin()){
+      const row=adminWorkspaceRow();
+      const remoteCount=extractCloudAthletes(row||{}).length;
+      const localRecords=parseCloudPayloadValue(payload,'tes_fisik_atlet_final_v1',[]);
+      const localCount=Array.isArray(localRecords)?localRecords.length:0;
+      if(localCount<remoteCount){
+        const ok=confirm(`PERINGATAN PENGAMAN DATA\n\nJumlah rekaman pada workspace ini berkurang dari ${remoteCount} menjadi ${localCount}.\n\nJika pengurangan ini memang disengaja, klik OK.\nJika tidak yakin, klik Batal lalu Refresh Cloud.\n\nVersi lama tetap akan dibackup otomatis oleh Supabase Safe V4.`);
+        if(!ok){setCloudStatus('☁ Penyimpanan dibatalkan oleh pengaman data','online');return false;}
+      }
+    }
+
+    const changes={payload,updated_at:new Date().toISOString()};
+    let updateQuery=client.from(CLOUD_TABLE).update(changes).eq('user_id',targetUserId);
+    if(isCloudAdmin()){
+      const knownVersion=adminWorkspaceBaseUpdatedAt||nativeStorageGet(cloudMarkerKey(targetUserId));
       if(knownVersion)updateQuery=updateQuery.eq('updated_at',knownVersion);
     }
-    const {data,error}=await updateQuery
-      .select('updated_at,approval_status,payload,user_id')
-      .maybeSingle();
+    const {data,error}=await updateQuery.select('updated_at,approval_status,payload,user_id').maybeSingle();
     if(error) throw error;
     if(!data){
-      throw new Error('Konflik data: akun yang sedang dikelola telah berubah di cloud. Kembali ke Ringkasan, klik Refresh Cloud, lalu buka workspace pengguna tersebut lagi.');
+      throw new Error('Konflik data: data cloud berubah setelah workspace dibuka. Tidak ada data yang ditimpa. Klik Refresh Cloud, lalu buka kembali akun tersebut.');
     }
     if(data.approval_status!=='approved'){
       cloudReady=false;
       throw new Error(approvalStatusMessage(data.approval_status));
     }
-    nativeStorageSetItem.call(localStorage,cloudMarkerKey(targetUserId),data.updated_at);
+
     if(isCloudAdmin()){
-      nativeStorageSetItem.call(localStorage,ADMIN_WORKSPACE_OWNER_LOCAL,targetUserId);
       const idx=adminCloudRows.findIndex(r=>String(r.user_id)===String(targetUserId));
       if(idx>=0)adminCloudRows[idx]={...adminCloudRows[idx],payload:data.payload,updated_at:data.updated_at};
       adminCloudAthletes=adminCloudRows.flatMap(extractCloudAthletes);
+      setAdminWorkspaceClean(data.updated_at||'');
       renderAdminCloudPanel();
-      setCloudStatus(`☁ Workspace tersimpan • ${adminWorkspaceLabel()}`,'online');
-      if(showMessage)showProfessionalToast('Workspace berhasil disimpan',adminWorkspaceLabel());
+      setCloudStatus(`☁ Workspace tersimpan aman • ${adminWorkspaceLabel()}`,'online');
+      if(showMessage)showProfessionalToast('Workspace tersimpan aman','Snapshot versi sebelumnya dibuat otomatis di cloud.');
     }else{
+      nativeStorageSetItem.call(localStorage,cloudMarkerKey(targetUserId),data.updated_at);
       setCloudStatus('☁ Tersimpan online','online');
       if(showMessage) alert('Data berhasil disinkronkan ke cloud.');
     }
@@ -5310,8 +5544,8 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
     updateCloudIdentityUI();
     const previousUser=nativeStorageGet(CLOUD_LAST_USER_STORE);
 
-    // Admin V3 memiliki workspace aktif. Default adalah payload admin sendiri;
-    // admin dapat memindahkan workspace ke akun lain melalui dashboard.
+    // Admin Safe V4: cloud selalu menjadi sumber awal. Tidak ada auto-push ketika login,
+    // pindah akun, reload, online kembali, ataupun menutup halaman.
     if(isCloudAdmin()){
       cloudReady=true;
       await loadAdminCloudData(false);
@@ -5319,24 +5553,20 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
       let ownerRow=(adminCloudRows||[]).find(r=>String(r.user_id)===String(ownerId));
       if(!ownerRow){ownerId=cloudUser.id;ownerRow=row;sessionStorage.setItem(ADMIN_ACTIVE_OWNER_SESSION,ownerId);}
       adminActiveOwnerId=ownerId;
-      const localOwner=nativeStorageGet(ADMIN_WORKSPACE_OWNER_LOCAL)||'';
-      const marker=nativeStorageGet(cloudMarkerKey(ownerId));
-      const remotePayload=ownerRow.payload&&typeof ownerRow.payload==='object'?ownerRow.payload:{};
-      const localPayload=collectCloudPayload();
-      const differs=cloudPayloadSignature(remotePayload)!==cloudPayloadSignature(localPayload);
-      nativeStorageSetItem.call(localStorage,CLOUD_LAST_USER_STORE,cloudUser.id);
-      if(localOwner!==ownerId || (differs && marker!==ownerRow.updated_at)){
-        applyCloudPayload(remotePayload);
+      adminWorkspaceLoading=true;
+      try{
+        const chosen=chooseAdminWorkspacePayload(ownerRow);
+        applyCloudPayload(chosen.payload||{});
         nativeStorageSetItem.call(localStorage,ADMIN_WORKSPACE_OWNER_LOCAL,ownerId);
-        nativeStorageSetItem.call(localStorage,cloudMarkerKey(ownerId),ownerRow.updated_at||'');
+        nativeStorageSetItem.call(localStorage,CLOUD_LAST_USER_STORE,cloudUser.id);
+        adminWorkspaceBaseUpdatedAt=ownerRow.updated_at||'';
+        nativeStorageSetItem.call(localStorage,cloudMarkerKey(ownerId),adminWorkspaceBaseUpdatedAt);
+        adminWorkspaceDirty=chosen.dirty===true;
         reloadWorkspaceRuntimeFromStorage(false);
-        updateCloudIdentityUI();
-        return true;
-      }
-      nativeStorageSetItem.call(localStorage,ADMIN_WORKSPACE_OWNER_LOCAL,ownerId);
-      nativeStorageSetItem.call(localStorage,cloudMarkerKey(ownerId),ownerRow.updated_at||'');
-      if(differs)await cloudPushNow(false);
+      }finally{adminWorkspaceLoading=false;}
       updateCloudIdentityUI();
+      updateAdminDirtyUI();
+      setCloudStatus(adminWorkspaceDirty?'☁ Draft lokal dipulihkan • belum disimpan':`☁ Admin Safe • ${adminWorkspaceLabel()}`,'online');
       return true;
     }
 
@@ -5503,15 +5733,25 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
   }
 
   async function logoutApp(){
+    if(isCloudAdmin()&&adminWorkspaceDirty){
+      writeAdminWorkspaceCache();
+      const ok=confirm(`Ada perubahan admin yang belum disimpan ke cloud.
+
+Keluar tanpa menyimpan? Draft lokal tetap diamankan dan dapat dipulihkan saat login kembali.
+
+OK = keluar
+Batal = kembali dan simpan terlebih dahulu`);
+      if(!ok)return;
+    }
     try{
-      await cloudPushNow(false);
+      if(!isCloudAdmin())await cloudPushNow(false);
       await stopCloudPresence();
       const client=getCloudClient();
       if(client)await client.auth.signOut();
     }catch(err){console.warn(err);}
     sessionStorage.removeItem(ADMIN_ACTIVE_OWNER_SESSION);
     sessionStorage.removeItem(ADMIN_PENDING_ACTION_SESSION);
-    adminActiveOwnerId=null;
+    adminActiveOwnerId=null;adminWorkspaceDirty=false;adminWorkspaceBaseUpdatedAt='';
     cloudUser=null;cloudProfile=null;cloudReady=false;adminCloudRows=[];adminCloudAthletes=[];adminCloudLoadedAt=null;
     updateCloudIdentityUI();
     document.getElementById('loginOverlay').classList.remove('hidden');
@@ -5532,9 +5772,17 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
     alert('Kata sandi berhasil diperbarui.');
   }
 
-  window.addEventListener('online',()=>{if(cloudUser){setCloudStatus('☁ Koneksi kembali • menyinkronkan','syncing');cloudScheduleSync();}});
-  window.addEventListener('offline',()=>setCloudStatus('☁ Offline • perubahan menunggu koneksi','offline'));
-  window.addEventListener('beforeunload',()=>{if(cloudReady&&cloudUser)cloudPushNow(false).catch(()=>{});});
+  window.addEventListener('online',()=>{
+    if(!cloudUser)return;
+    if(isCloudAdmin())setCloudStatus(adminWorkspaceDirty?'☁ Online kembali • perubahan admin masih lokal':'☁ Online kembali • Admin Safe','online');
+    else{setCloudStatus('☁ Koneksi kembali • menyinkronkan','syncing');cloudScheduleSync();}
+  });
+  window.addEventListener('offline',()=>setCloudStatus('☁ Offline • perubahan lokal tetap diamankan','offline'));
+  window.addEventListener('beforeunload',()=>{
+    if(!cloudReady||!cloudUser)return;
+    if(isCloudAdmin()){if(adminWorkspaceDirty)writeAdminWorkspaceCache();return;}
+    cloudPushNow(false).catch(()=>{});
+  });
 
   // ===================== STORAGE =====================
   const STORE_KEY  = 'tes_fisik_atlet_final_v1';
@@ -10701,11 +10949,22 @@ const SPECIAL_TESTS = {
   }
 
   function hapusAtlet(id){
-    if(!confirm('Hapus data atlet ini?')) return;
     const deleted=databaseAtlet.find(x=>x.id===id);
+    if(!deleted)return;
+    if(isCloudAdmin()){
+      if(!confirm(`Pindahkan ${deleted.nama||'data atlet ini'} ke Sampah?
+
+Data belum dihapus permanen dan baru akan masuk cloud setelah Anda menekan Simpan Perubahan.`))return;
+      let trash=[];
+      try{trash=JSON.parse(localStorage.getItem(ADMIN_TRASH_KEY)||'[]');if(!Array.isArray(trash))trash=[];}catch(_){trash=[];}
+      trash.unshift({trash_id:`trash_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,deleted_at:new Date().toISOString(),deleted_by:cloudUser?.id||null,record:deleted});
+      localStorage.setItem(ADMIN_TRASH_KEY,JSON.stringify(trash.slice(0,500)));
+    }else{
+      if(!confirm('Hapus data atlet ini?')) return;
+    }
     databaseAtlet = databaseAtlet.filter(x=>x.id!==id);
     saveDB();
-    addAuditLog('Data atlet dihapus',deleted?`${deleted.nama} • ${deleted.tglTes}`:'');
+    addAuditLog(isCloudAdmin()?'Data atlet dipindahkan ke Sampah':'Data atlet dihapus',`${deleted.nama} • ${deleted.tglTes}`);
     if(document.getElementById('idAtlet').dataset.id===id){
       exitAthleteReloadMode();
       exitAthleteEditMode();
