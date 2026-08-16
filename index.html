@@ -2807,6 +2807,303 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
 }
 .proRxTimestamp{color:#bfe3d3;font-size:7.5px}
 
+
+/* =========================================================
+   V6.1 PROFESSIONAL RESPONSIVE UI
+   Elegant desktop sidebar + mobile bottom navigation
+   ========================================================= */
+:root{
+  --pro-nav-w:258px;
+  --pro-nav-collapsed:82px;
+  --pro-top-h:66px;
+  --pro-surface:#063f31;
+  --pro-surface-2:#07513d;
+  --pro-line:rgba(255,255,255,.12);
+  --pro-muted:#afd2c2;
+  --pro-accent:#9be226;
+  --pro-accent-2:#31d7a5;
+}
+html{scroll-behavior:smooth}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body.proUiReady{
+  background:
+    radial-gradient(1100px 620px at 18% -10%,rgba(49,215,165,.12),transparent 67%),
+    radial-gradient(900px 520px at 95% 8%,rgba(155,226,38,.08),transparent 64%),
+    var(--bg)
+}
+body.proUiReady .wrap>header,
+body.proUiReady .wrap>.quickNav{display:none!important}
+.proSidebar,.proTopbar,.proMobileNav,.proMobileMore,.proOverlay{display:none}
+
+@media(min-width:1100px){
+  body.proUiReady{padding-left:var(--pro-nav-w);transition:padding-left .22s ease}
+  body.proUiReady.proSidebarCollapsed{padding-left:var(--pro-nav-collapsed)}
+  body.proUiReady .wrap{max-width:1540px;width:auto;margin:0 auto;padding:18px 22px 38px}
+
+  .proSidebar{
+    display:flex;position:fixed;inset:0 auto 0 0;width:var(--pro-nav-w);z-index:760;
+    flex-direction:column;overflow:hidden;
+    background:
+      radial-gradient(480px 240px at 20% 0%,rgba(155,226,38,.12),transparent 64%),
+      linear-gradient(180deg,#043b2e 0%,#032e24 100%);
+    border-right:1px solid rgba(255,255,255,.10);box-shadow:12px 0 40px rgba(1,25,19,.16);
+    transition:width .22s ease
+  }
+  body.proSidebarCollapsed .proSidebar{width:var(--pro-nav-collapsed)}
+  .proSidebarBrand{
+    height:80px;display:flex;align-items:center;gap:11px;padding:14px 15px;
+    border-bottom:1px solid rgba(255,255,255,.09);flex:none
+  }
+  .proSidebarLogo{
+    width:46px;height:46px;object-fit:contain;border-radius:13px;background:#fff;padding:4px;
+    box-shadow:0 8px 22px rgba(0,0,0,.16);flex:none
+  }
+  .proBrandText{min-width:0;white-space:nowrap;transition:opacity .15s ease}
+  .proBrandText b{display:block;color:#fff;font-size:14px}
+  .proBrandText span{display:block;color:#a8cfc0;font-size:8px;margin-top:3px;letter-spacing:.35px}
+  body.proSidebarCollapsed .proBrandText{opacity:0;pointer-events:none}
+
+  .proSidebarScroll{
+    padding:12px 10px 16px;overflow-y:auto;overflow-x:hidden;flex:1;
+    scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent
+  }
+  .proNavHome,.proNavItem{
+    width:100%;min-height:43px;display:flex;align-items:center;gap:11px;padding:9px 11px;
+    border:1px solid transparent;border-radius:12px;background:transparent;color:#d9eee5;
+    cursor:pointer;font-weight:750;font-size:10.5px;text-align:left;white-space:nowrap;position:relative;
+    transition:background .16s ease,border-color .16s ease,color .16s ease,transform .05s ease
+  }
+  .proNavHome:hover,.proNavItem:hover{background:rgba(255,255,255,.07);color:#fff}
+  .proNavHome:active,.proNavItem:active{transform:scale(.985)}
+  .proNavHome.navBtn.active,.proNavItem.navBtn.active{
+    background:linear-gradient(135deg,rgba(49,215,165,.20),rgba(155,226,38,.12))!important;
+    border-color:rgba(155,226,38,.25)!important;color:#fff!important;
+    box-shadow:inset 3px 0 0 var(--pro-accent),0 7px 20px rgba(0,0,0,.10)!important
+  }
+  .proNavHome.navBtn.active::after,.proNavItem.navBtn.active::after{display:none!important}
+  .proNavIcon{width:22px;height:22px;display:grid;place-items:center;font-size:15px;line-height:1;flex:none}
+  .proNavText{overflow:hidden;text-overflow:ellipsis;transition:opacity .15s ease}
+  .proNavSection{margin-top:15px}
+  .proNavSectionTitle{
+    padding:0 10px 6px;color:#769f90;font-size:7px;font-weight:900;letter-spacing:.9px;
+    text-transform:uppercase;white-space:nowrap;transition:opacity .15s ease
+  }
+  body.proSidebarCollapsed .proNavText,
+  body.proSidebarCollapsed .proNavSectionTitle,
+  body.proSidebarCollapsed .proSidebarUserText,
+  body.proSidebarCollapsed .proCollapseText{opacity:0;pointer-events:none}
+  body.proSidebarCollapsed .proNavHome,
+  body.proSidebarCollapsed .proNavItem{justify-content:center;padding-left:8px;padding-right:8px}
+  body.proSidebarCollapsed .proNavIcon{width:28px}
+  body.proSidebarCollapsed .proNavSection{margin-top:8px}
+  .proNavAdminSection{display:none}
+
+  .proSidebarBottom{
+    flex:none;padding:10px;border-top:1px solid rgba(255,255,255,.09);background:rgba(0,0,0,.08)
+  }
+  .proSidebarUser{display:flex;align-items:center;gap:9px;padding:8px 7px;margin-bottom:5px}
+  .proAvatar{
+    width:34px;height:34px;border-radius:11px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#32d6a5,#9be226);color:#06382b;font-weight:950;font-size:12px;flex:none
+  }
+  .proSidebarUserText{min-width:0;white-space:nowrap;transition:opacity .15s ease}
+  .proSidebarUserText b{display:block;color:#fff;font-size:9.5px;overflow:hidden;text-overflow:ellipsis;max-width:165px}
+  .proSidebarUserText span{display:block;color:#94bcad;font-size:7.5px;margin-top:2px}
+  .proSidebarCollapse{
+    width:100%;height:37px;border:0;border-radius:10px;cursor:pointer;background:rgba(255,255,255,.055);
+    color:#cbe5da;display:flex;align-items:center;justify-content:center;gap:7px;font-size:8.5px;font-weight:800
+  }
+  .proSidebarCollapse:hover{background:rgba(255,255,255,.09)}
+  .proCollapseArrow{display:inline-block;transition:transform .2s ease}
+  body.proSidebarCollapsed .proCollapseArrow{transform:rotate(180deg)}
+
+  .proTopbar{
+    display:flex;position:sticky;top:10px;z-index:690;height:var(--pro-top-h);
+    align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;
+    padding:10px 12px 10px 16px;border:1px solid rgba(255,255,255,.15);border-radius:17px;
+    background:rgba(4,61,46,.86);backdrop-filter:blur(18px) saturate(140%);
+    box-shadow:0 14px 34px rgba(1,34,24,.18)
+  }
+  .proTopContext{min-width:0}
+  .proBreadcrumb{color:#8fb9aa;font-size:7.5px;font-weight:800;letter-spacing:.45px;text-transform:uppercase}
+  .proTopTitle{color:#fff;font-size:15px;font-weight:900;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .proTopActions{display:flex;align-items:center;gap:7px;flex:none}
+  .proWorkspaceChip{
+    max-width:250px;display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid rgba(255,255,255,.13);
+    border-radius:11px;background:rgba(255,255,255,.055);color:#d8eee5;font-size:8px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+  }
+  .proCloudBtn{
+    min-height:38px;padding:8px 11px;border-radius:11px;border:1px solid rgba(74,222,128,.25);
+    background:rgba(34,197,94,.11);color:#eafff0;cursor:pointer;font-size:8.5px;font-weight:900;
+    display:flex;align-items:center;gap:6px
+  }
+  .proCloudBtn.dirty{
+    background:rgba(245,158,11,.14);border-color:rgba(251,191,36,.38);color:#fff3d5;
+    box-shadow:0 0 0 3px rgba(245,158,11,.05)
+  }
+  .proCloudDot{width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.10)}
+  .proCloudBtn.dirty .proCloudDot{background:#fbbf24;box-shadow:0 0 0 3px rgba(251,191,36,.10)}
+  .proAddBtn{
+    min-height:38px;padding:8px 12px;border:0;border-radius:11px;cursor:pointer;
+    background:linear-gradient(135deg,#32d6a5,#9be226);color:#07382b;font-weight:950;font-size:9px;
+    display:flex;align-items:center;gap:6px;box-shadow:0 8px 20px rgba(49,215,165,.14)
+  }
+  .proProfileBtn{
+    width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,.13);
+    background:rgba(255,255,255,.065);color:#fff;display:grid;place-items:center;
+    cursor:pointer;font-weight:900;font-size:10px
+  }
+}
+
+.proPopover{
+  position:fixed;z-index:900;display:none;min-width:220px;padding:7px;
+  border:1px solid rgba(255,255,255,.14);border-radius:14px;background:rgba(4,51,40,.97);
+  backdrop-filter:blur(18px);box-shadow:0 22px 50px rgba(0,0,0,.28)
+}
+.proPopover.open{display:block;animation:proPopIn .14s ease}
+@keyframes proPopIn{from{opacity:0;transform:translateY(-4px) scale(.985)}to{opacity:1;transform:none}}
+.proPopoverHead{padding:8px 9px 7px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:5px}
+.proPopoverHead b{display:block;color:#fff;font-size:10px}
+.proPopoverHead span{display:block;color:#9ec5b6;font-size:7.5px;margin-top:2px}
+.proMenuBtn{
+  width:100%;min-height:38px;padding:8px 9px;border:0;border-radius:9px;background:transparent;
+  color:#dff3ea;display:flex;align-items:center;gap:9px;cursor:pointer;text-align:left;font-size:9px;font-weight:750
+}
+.proMenuBtn:hover{background:rgba(255,255,255,.07);color:#fff}
+.proMenuBtn.danger{color:#ffd7dd}
+.proMenuIcon{width:20px;text-align:center;font-size:13px;flex:none}
+.proMenuSeparator{height:1px;background:rgba(255,255,255,.08);margin:5px 4px}
+.proAdminOnly{display:none!important}
+body.cloud-admin-active .proAdminOnly{display:flex!important}
+
+body.proUiReady .card{border-color:rgba(255,255,255,.12);box-shadow:0 12px 34px rgba(1,34,24,.10)}
+body.proUiReady .card>.hd{background:linear-gradient(90deg,rgba(49,215,165,.095),rgba(155,226,38,.045))}
+body.proUiReady .card>.hd h2{font-weight:850}
+body.proUiReady .btn{border-radius:10px}
+body.proUiReady input,body.proUiReady select,body.proUiReady textarea{border-radius:10px}
+body.proUiReady .pill{border-radius:999px}
+body.proUiReady .appView{scroll-margin-top:88px}
+
+@media(max-width:1099px){
+  body.proUiReady{
+    padding:0 0 76px!important;
+    background:radial-gradient(760px 420px at 10% -10%,rgba(49,215,165,.11),transparent 66%),var(--bg)
+  }
+  body.proUiReady .wrap{width:auto;max-width:none;margin:0;padding:74px 12px 20px}
+  .proSidebar{display:none!important}
+  .proTopbar{
+    display:flex;position:fixed;z-index:720;left:8px;right:8px;top:8px;height:56px;
+    align-items:center;justify-content:space-between;gap:8px;padding:7px 8px 7px 11px;
+    border:1px solid rgba(255,255,255,.14);border-radius:15px;background:rgba(4,58,44,.91);
+    backdrop-filter:blur(18px);box-shadow:0 10px 28px rgba(0,0,0,.16)
+  }
+  .proTopContext{min-width:0;flex:1}
+  .proBreadcrumb{font-size:6.5px;color:#8fb9aa;text-transform:uppercase;font-weight:850;letter-spacing:.35px}
+  .proTopTitle{font-size:12px;color:#fff;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+  .proTopActions{display:flex;align-items:center;gap:5px;flex:none}
+  .proWorkspaceChip{display:none}
+  .proCloudBtn{
+    width:36px;height:36px;padding:0;border-radius:11px;border:1px solid rgba(74,222,128,.25);
+    background:rgba(34,197,94,.11);display:grid;place-items:center;color:#fff;cursor:pointer
+  }
+  .proCloudBtn.dirty{background:rgba(245,158,11,.16);border-color:rgba(251,191,36,.42)}
+  .proCloudText{display:none}
+  .proCloudDot{width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.10)}
+  .proCloudBtn.dirty .proCloudDot{background:#fbbf24}
+  .proAddBtn{
+    width:36px;height:36px;padding:0;border:0;border-radius:11px;display:grid;place-items:center;
+    background:linear-gradient(135deg,#32d6a5,#9be226);color:#07382b;font-size:18px;font-weight:900;cursor:pointer
+  }
+  .proAddText{display:none}
+  .proProfileBtn{
+    width:36px;height:36px;border-radius:11px;border:1px solid rgba(255,255,255,.13);
+    background:rgba(255,255,255,.07);color:#fff;display:grid;place-items:center;cursor:pointer;font-weight:900
+  }
+
+  .proMobileNav{
+    display:grid;position:fixed;z-index:730;left:8px;right:8px;bottom:8px;grid-template-columns:repeat(5,1fr);
+    min-height:60px;padding:5px;border:1px solid rgba(255,255,255,.14);border-radius:17px;
+    background:rgba(3,49,38,.94);backdrop-filter:blur(18px);box-shadow:0 -8px 28px rgba(0,0,0,.18)
+  }
+  .proMobileNavBtn{
+    border:0;border-radius:12px;background:transparent;color:#a8cbbb;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    font-size:7px;font-weight:800;min-width:0
+  }
+  .proMobileNavBtn .ico{font-size:16px;line-height:1}
+  .proMobileNavBtn.active{background:rgba(49,215,165,.12);color:#fff}
+  .proMobileNavBtn.active .ico{color:#a8ed3e}
+
+  .proOverlay{display:none;position:fixed;inset:0;z-index:840;background:rgba(0,18,14,.58);backdrop-filter:blur(3px)}
+  .proOverlay.open{display:block}
+  .proMobileMore{
+    display:block;position:fixed;z-index:850;left:8px;right:8px;bottom:78px;
+    max-height:min(72vh,620px);overflow:auto;padding:10px;border-radius:20px;
+    border:1px solid rgba(255,255,255,.14);
+    background:linear-gradient(180deg,rgba(5,68,51,.99),rgba(3,45,35,.99));
+    box-shadow:0 22px 60px rgba(0,0,0,.32);
+    transform:translateY(calc(100% + 100px));opacity:0;pointer-events:none;
+    transition:transform .2s ease,opacity .18s ease
+  }
+  .proMobileMore.open{transform:none;opacity:1;pointer-events:auto}
+  .proMobileMoreHead{
+    display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 4px 10px;
+    border-bottom:1px solid rgba(255,255,255,.09);margin-bottom:8px
+  }
+  .proMobileMoreHead b{font-size:12px;color:#fff}
+  .proMobileMoreHead span{font-size:7.5px;color:#96bdae}
+  .proMobileClose{width:31px;height:31px;border:0;border-radius:10px;background:rgba(255,255,255,.07);color:#fff;cursor:pointer}
+  .proMobileMenuGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .proMobileMenuItem{
+    min-height:58px;border:1px solid rgba(255,255,255,.10);border-radius:13px;
+    background:rgba(255,255,255,.045);color:#e4f4ed;cursor:pointer;
+    display:flex;align-items:center;gap:9px;padding:9px;text-align:left
+  }
+  .proMobileMenuItem .ico{font-size:17px;width:25px;text-align:center;flex:none}
+  .proMobileMenuItem b{display:block;font-size:8.5px}
+  .proMobileMenuItem span{display:block;font-size:6.7px;color:#9ec3b4;margin-top:2px;line-height:1.3}
+  .proMobileAccountBox{
+    margin-top:8px;padding:8px;border-radius:13px;background:rgba(0,0,0,.10);
+    border:1px solid rgba(255,255,255,.08)
+  }
+  .proMobileAccountRow{display:flex;align-items:center;gap:8px;padding:3px}
+  .proMobileAccountText{min-width:0}
+  .proMobileAccountText b{display:block;color:#fff;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .proMobileAccountText span{display:block;color:#99c0b1;font-size:7px;margin-top:2px}
+  .proMobileAccountActions{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:7px}
+  .proMobileAccountActions button{
+    min-height:34px;border:1px solid rgba(255,255,255,.10);border-radius:9px;
+    background:rgba(255,255,255,.05);color:#e4f4ed;font-size:7.5px;font-weight:800;cursor:pointer
+  }
+  .proMobileAccountActions button.danger{color:#ffd5dc}
+  .proPopover{min-width:210px;max-width:calc(100vw - 20px)}
+  body.proUiReady .card{border-radius:15px}
+  body.proUiReady .card .hd{padding:11px 12px}
+  body.proUiReady .card .bd{padding-left:11px;padding-right:11px}
+}
+
+@media(max-width:560px){
+  body.proUiReady .wrap{padding-left:8px;padding-right:8px}
+  .proTopbar{left:6px;right:6px}
+  .proMobileNav{left:6px;right:6px;bottom:6px}
+  .proMobileMore{left:6px;right:6px}
+  .proMobileMenuGrid{grid-template-columns:1fr 1fr}
+  .proMobileMenuItem{min-height:54px}
+  body.proUiReady .dashboardWelcome,body.proUiReady .professionalColumns{gap:8px}
+  body.proUiReady .toolbar2,body.proUiReady .toolbar{gap:6px}
+  body.proUiReady .btn{font-size:10px;padding:8px 9px}
+}
+
+body.proUiReady .wrap{overflow-x:clip}
+body.proUiReady .tablewrap,
+body.proUiReady .adminCloudTableWrap,
+body.proUiReady .exerciseGrid,
+body.proUiReady .proRxExerciseGrid{max-width:100%}
+@media(prefers-reduced-motion:reduce){
+  .proSidebar,.proMobileMore,.proPopover,.proCollapseArrow{transition:none!important}
+}
+
 </style>
 </head>
 
@@ -2850,6 +3147,51 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
 
 <div id="cloudSyncBadge" class="cloudSyncBadge offline">☁ Cloud belum terhubung</div>
 
+<aside class="proSidebar" id="proSidebar" aria-label="Navigasi utama">
+  <div class="proSidebarBrand">
+    <img class="proSidebarLogo" id="proSidebarLogo" alt="SportScience Pro">
+    <div class="proBrandText"><b>SportScience Pro</b><span>PERFORMANCE MANAGEMENT</span></div>
+  </div>
+  <div class="proSidebarScroll">
+    <button class="proNavHome navBtn active" data-module="moduleDashboard" onclick="showModule('moduleDashboard')" title="Ringkasan"><span class="proNavIcon">⌂</span><span class="proNavText">Ringkasan</span></button>
+    <div class="proNavSection">
+      <div class="proNavSectionTitle">ATLET</div>
+      <button class="proNavItem navBtn" data-module="moduleAthleteHub" onclick="showModule('moduleAthleteHub')" title="Pusat Atlet"><span class="proNavIcon">♙</span><span class="proNavText">Pusat Atlet</span></button>
+      <button class="proNavItem navBtn" data-module="moduleTrend" onclick="showModule('moduleTrend')" title="Tren Performa"><span class="proNavIcon">↗</span><span class="proNavText">Tren Performa</span></button>
+    </div>
+    <div class="proNavSection">
+      <div class="proNavSectionTitle">TES & ANALISIS</div>
+      <button class="proNavItem navBtn" data-module="moduleInput" onclick="showModule('moduleInput')" title="Tes Atlet"><span class="proNavIcon">◉</span><span class="proNavText">Tes Atlet</span></button>
+      <button class="proNavItem navBtn" data-module="moduleAnalysis" onclick="showModule('moduleAnalysis')" title="Analisis Tim"><span class="proNavIcon">▥</span><span class="proNavText">Analisis Tim</span></button>
+      <button class="proNavItem navBtn" data-module="moduleForms" onclick="showModule('moduleForms')" title="Formulir Tes"><span class="proNavIcon">▤</span><span class="proNavText">Formulir Tes</span></button>
+      <button class="proNavItem navBtn" data-module="moduleScience" onclick="showModule('moduleScience')" title="Norma & Validasi"><span class="proNavIcon">⚖</span><span class="proNavText">Norma & Validasi</span></button>
+      <button class="proNavItem navBtn" data-module="moduleNationalSelection" onclick="showModule('moduleNationalSelection')" title="Seleksi Nasional"><span class="proNavIcon">🏆</span><span class="proNavText">Seleksi Nasional</span></button>
+    </div>
+    <div class="proNavSection">
+      <div class="proNavSectionTitle">LATIHAN</div>
+      <button class="proNavItem navBtn" data-module="moduleExerciseLibrary" onclick="showModule('moduleExerciseLibrary')" title="Pustaka Latihan"><span class="proNavIcon">🏋</span><span class="proNavText">Pustaka Latihan</span></button>
+      <button class="proNavItem navBtn" data-module="moduleTraining" onclick="showModule('moduleTraining')" title="Program Latihan"><span class="proNavIcon">◆</span><span class="proNavText">Program Latihan</span></button>
+    </div>
+    <div class="proNavSection">
+      <div class="proNavSectionTitle">MONITORING</div>
+      <button class="proNavItem navBtn" data-module="moduleWellness" onclick="showModule('moduleWellness')" title="Wellness & Readiness"><span class="proNavIcon">♡</span><span class="proNavText">Wellness & Readiness</span></button>
+    </div>
+    <div class="proNavSection proNavAdminSection" id="proAdminNavSection">
+      <div class="proNavSectionTitle">ADMINISTRASI</div>
+      <button class="proNavItem" onclick="proOpenAdminPanel()" title="Kelola Pengguna"><span class="proNavIcon">⚙</span><span class="proNavText">Kelola Pengguna</span></button>
+      <button class="proNavItem" onclick="proOpenBackupHistory()" title="Backup & Restore"><span class="proNavIcon">↺</span><span class="proNavText">Backup & Restore</span></button>
+    </div>
+  </div>
+  <div class="proSidebarBottom">
+    <div class="proSidebarUser">
+      <div class="proAvatar" id="proSidebarAvatar">U</div>
+      <div class="proSidebarUserText"><b id="proSidebarUserName">Memuat akun…</b><span id="proSidebarUserRole">SportScience Pro</span></div>
+    </div>
+    <button class="proSidebarCollapse" onclick="toggleProfessionalSidebar()" title="Lipat atau buka sidebar"><span class="proCollapseArrow">‹</span><span class="proCollapseText">Lipat navigasi</span></button>
+  </div>
+</aside>
+
+
   <div class="wrap">
     <header>
       <div class="title">
@@ -2889,6 +3231,21 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
         <span class="statusMini" id="loggedUserMini">User: memuat…</span>
       </div>
     </div>
+
+    
+    <div class="proTopbar" id="proTopbar">
+      <div class="proTopContext">
+        <div class="proBreadcrumb">SportScience Pro / <span id="proTopGroup">Ringkasan</span></div>
+        <div class="proTopTitle" id="proTopTitle">Ringkasan Dashboard</div>
+      </div>
+      <div class="proTopActions">
+        <div class="proWorkspaceChip" id="proWorkspaceChip">☁ Workspace</div>
+        <button class="proCloudBtn" id="proCloudBtn" type="button" onclick="cloudSyncNow(true)" title="Status penyimpanan cloud"><span class="proCloudDot"></span><span class="proCloudText" id="proCloudText">Tersimpan</span></button>
+        <button class="proAddBtn" id="proAddBtn" type="button" onclick="toggleProPopover('proAddMenu',this)"><span>＋</span><span class="proAddText">Tambah</span></button>
+        <button class="proProfileBtn" id="proProfileBtn" type="button" onclick="toggleProPopover('proProfileMenu',this)" title="Akun"><span id="proTopAvatar">U</span></button>
+      </div>
+    </div>
+
 
     <div class="card commandCard appView active" id="moduleDashboard">
       <div class="hd">
@@ -11510,7 +11867,7 @@ Data belum dihapus permanen dan baru akan masuk cloud setelah Anda menekan Simpa
   ];
 
 
-  // ===== V6 CURATED VIDEO + PROFESSIONAL PRESCRIPTION =====
+  // ===== V6.1 PROFESSIONAL RESPONSIVE UI + PRESCRIPTION =====
   // Video Pexels dikurasi per exercise untuk mengurangi duplikasi dan meningkatkan kualitas visual. Video digunakan sebagai visualisasi edukatif. Video dengan match="pattern"
   // hanya memperlihatkan pola gerak yang berdekatan, bukan demonstrasi identik.
   const EXERCISE_VIDEO_LIBRARY={
@@ -12071,6 +12428,138 @@ Data belum dihapus permanen dan baru akan masuk cloud setelah Anda menekan Simpa
     moduleTraining:{name:'Program Latihan',bodyClass:'module-training'}
   };
 
+
+  // ===== V6.1 PROFESSIONAL RESPONSIVE UI =====
+  const PRO_UI_COLLAPSE_KEY='sportscience_pro_ui_sidebar_collapsed_v1';
+  const PRO_MODULE_GROUP={
+    moduleDashboard:'Ringkasan',
+    moduleAthleteHub:'Atlet',moduleTrend:'Atlet',
+    moduleInput:'Tes & Analisis',moduleAnalysis:'Tes & Analisis',moduleForms:'Tes & Analisis',
+    moduleScience:'Tes & Analisis',moduleNationalSelection:'Tes & Analisis',
+    moduleExerciseLibrary:'Latihan',moduleTraining:'Latihan',moduleWellness:'Monitoring'
+  };
+
+  function proCurrentModuleId(){
+    return document.querySelector('.appView.active')?.id || 'moduleDashboard';
+  }
+  function proSafeText(v,fallback=''){const s=String(v??'').trim();return s||fallback;}
+  function proInitial(name){
+    const s=proSafeText(name,'U').replace(/^(Admin|Pelatih|Individu|User)\s*:\s*/i,'').trim();
+    return (s.charAt(0)||'U').toUpperCase();
+  }
+  function proParseAccount(){
+    const raw=proSafeText(document.getElementById('loggedUserMini')?.textContent,'User');
+    const parts=raw.split(':');
+    if(parts.length>1)return {role:parts.shift().trim(),name:parts.join(':').trim()||'Pengguna'};
+    return {role:(typeof isCloudAdmin==='function'&&isCloudAdmin())?'Admin':'Pengguna',name:raw.replace(/^User\s*/i,'').trim()||'Pengguna'};
+  }
+  function proUpdateAdminVisibility(){
+    const admin=typeof isCloudAdmin==='function'&&isCloudAdmin();
+    const section=document.getElementById('proAdminNavSection');
+    if(section)section.style.display=admin?'block':'none';
+  }
+  function syncProfessionalChrome(){
+    try{
+      document.body.classList.add('proUiReady');
+      const logo=document.querySelector('.headerBrandLogo');
+      const sideLogo=document.getElementById('proSidebarLogo');
+      if(logo&&sideLogo&&!sideLogo.src)sideLogo.src=logo.src;
+
+      const id=proCurrentModuleId();
+      const meta=(typeof MODULE_META!=='undefined'&&MODULE_META[id])?MODULE_META[id]:null;
+      const title=meta?.name||document.getElementById('currentModuleName')?.textContent||'SportScience Pro';
+      const group=PRO_MODULE_GROUP[id]||'SportScience Pro';
+      if(document.getElementById('proTopTitle'))document.getElementById('proTopTitle').textContent=title;
+      if(document.getElementById('proTopGroup'))document.getElementById('proTopGroup').textContent=group;
+
+      const account=proParseAccount();
+      ['proSidebarUserName','proProfileName','proMobileUserName'].forEach(x=>{const el=document.getElementById(x);if(el)el.textContent=account.name;});
+      ['proSidebarUserRole','proProfileRole','proMobileUserRole'].forEach(x=>{const el=document.getElementById(x);if(el)el.textContent=account.role;});
+      ['proSidebarAvatar','proTopAvatar','proMobileAvatar'].forEach(x=>{const el=document.getElementById(x);if(el)el.textContent=proInitial(account.name);});
+
+      const source=proSafeText(document.getElementById('dataSourceMini')?.textContent,'Cloud');
+      const workspace=document.getElementById('proWorkspaceChip');
+      if(workspace)workspace.textContent=source.replace(/^●\s*/,'').replace(/^☁\s*/,'☁ ');
+
+      const legacySync=proSafeText(document.getElementById('toolbarCloudSync')?.textContent,'');
+      const dirty=(typeof adminWorkspaceDirty!=='undefined'&&adminWorkspaceDirty===true)||/\*|Perubahan|BELUM DISIMPAN/i.test(legacySync+' '+source);
+      const cloudBtn=document.getElementById('proCloudBtn');
+      const cloudText=document.getElementById('proCloudText');
+      if(cloudBtn)cloudBtn.classList.toggle('dirty',dirty);
+      if(cloudText){
+        if(dirty)cloudText.textContent='Belum disimpan';
+        else if(typeof isCloudAdmin==='function'&&isCloudAdmin())cloudText.textContent='Tersimpan';
+        else cloudText.textContent='Sinkronkan';
+      }
+      if(cloudBtn)cloudBtn.title=dirty?'Ada perubahan belum disimpan. Klik untuk menyimpan ke cloud.':'Status cloud aman. Klik untuk sinkronisasi manual.';
+      proUpdateAdminVisibility();
+      updateProfessionalMobileNav(id);
+    }catch(e){console.warn('Professional UI sync:',e);}
+  }
+  function updateProfessionalMobileNav(id=proCurrentModuleId()){
+    const key=id==='moduleDashboard'?'home':
+      ['moduleAthleteHub','moduleTrend'].includes(id)?'athlete':
+      ['moduleInput','moduleAnalysis','moduleForms','moduleScience','moduleNationalSelection'].includes(id)?'test':
+      ['moduleExerciseLibrary','moduleTraining'].includes(id)?'training':'more';
+    document.querySelectorAll('.proMobileNavBtn').forEach(b=>b.classList.toggle('active',b.dataset.proMobile===key));
+  }
+  function toggleProfessionalSidebar(){
+    document.body.classList.toggle('proSidebarCollapsed');
+    try{localStorage.setItem(PRO_UI_COLLAPSE_KEY,document.body.classList.contains('proSidebarCollapsed')?'1':'0');}catch(_){}
+  }
+  function proPositionPopover(pop,anchor){
+    if(!pop||!anchor)return;
+    const r=anchor.getBoundingClientRect(),w=Math.min(260,window.innerWidth-20);
+    let left=Math.min(r.right-w,window.innerWidth-w-10);left=Math.max(10,left);
+    let top=r.bottom+8;if(top+300>window.innerHeight)top=Math.max(10,r.top-300);
+    pop.style.width=w+'px';pop.style.left=left+'px';pop.style.top=top+'px';
+  }
+  function toggleProPopover(id,anchor){
+    const target=document.getElementById(id);if(!target)return;
+    const willOpen=!target.classList.contains('open');closeProPopovers();
+    if(willOpen){target.classList.add('open');proPositionPopover(target,anchor);}
+  }
+  function closeProPopovers(){document.querySelectorAll('.proPopover.open').forEach(x=>x.classList.remove('open'));}
+  function proGo(moduleId){closeProPopovers();closeProfessionalMobileMore();showModule(moduleId);}
+  function openProfessionalMobileMore(){
+    closeProPopovers();
+    document.getElementById('proMobileMore')?.classList.add('open');
+    document.getElementById('proOverlay')?.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeProfessionalMobileMore(){
+    document.getElementById('proMobileMore')?.classList.remove('open');
+    document.getElementById('proOverlay')?.classList.remove('open');
+    document.body.style.overflow='';
+  }
+  function proOpenAdminPanel(){
+    closeProPopovers();closeProfessionalMobileMore();showModule('moduleDashboard');
+    setTimeout(()=>document.getElementById('adminCloudPanel')?.scrollIntoView({behavior:'smooth',block:'start'}),180);
+  }
+  function proOpenBackupHistory(){
+    closeProPopovers();closeProfessionalMobileMore();showModule('moduleDashboard');
+    setTimeout(()=>{
+      const target=document.getElementById('adminBackupHistoryPanel')||document.querySelector('[id*="BackupHistory"]')||document.querySelector('.adminBackupHistory')||document.getElementById('adminCloudPanel');
+      target?.scrollIntoView({behavior:'smooth',block:'start'});
+    },180);
+  }
+  function initProfessionalResponsiveUI(){
+    try{
+      document.body.classList.add('proUiReady');
+      if(localStorage.getItem(PRO_UI_COLLAPSE_KEY)==='1')document.body.classList.add('proSidebarCollapsed');
+    }catch(_){document.body.classList.add('proUiReady');}
+    syncProfessionalChrome();
+    const observer=new MutationObserver(()=>syncProfessionalChrome());
+    ['currentModuleName','dataSourceMini','loggedUserMini','saveStatusMini','toolbarCloudSync'].forEach(id=>{
+      const el=document.getElementById(id);if(el)observer.observe(el,{childList:true,subtree:true,characterData:true,attributes:true});
+    });
+    document.addEventListener('click',e=>{
+      if(!e.target.closest('.proPopover')&&!e.target.closest('#proAddBtn')&&!e.target.closest('#proProfileBtn'))closeProPopovers();
+    });
+    window.addEventListener('resize',()=>{closeProPopovers();if(window.innerWidth>=1100)closeProfessionalMobileMore();},{passive:true});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeProPopovers();closeProfessionalMobileMore();}});
+  }
+
   function showModule(id, updateHash=true){
     const target=document.getElementById(id);
     if(!target || !MODULE_META[id]) id='moduleDashboard';
@@ -12140,6 +12629,7 @@ Data belum dihapus permanen dan baru akan masuk cloud setelah Anda menekan Simpa
         renderDomainChart();
       },100);
     }
+    setTimeout(syncProfessionalChrome,20);
   }
 
   function scrollToModule(id){
@@ -17602,6 +18092,7 @@ ${css}
     document.querySelector('.wrap')?.addEventListener('input',scheduleDraftSave);
     document.querySelector('.wrap')?.addEventListener('change',scheduleDraftSave);
     syncTrainingDays();
+    setTimeout(()=>{if(typeof initProfessionalResponsiveUI==='function')initProfessionalResponsiveUI();},120);
   })();
 
 
@@ -17619,5 +18110,59 @@ ${css}
     });
   }catch(err){console.warn('Auth listener:',err);}
 </script>
+
+<div class="proPopover" id="proAddMenu">
+  <div class="proPopoverHead"><b>Tindakan cepat</b><span>Pilih pekerjaan yang ingin dilakukan</span></div>
+  <button class="proMenuBtn" onclick="proGo('moduleInput');resetForm(true)"><span class="proMenuIcon">＋</span><span>Input Tes Atlet Baru</span></button>
+  <button class="proMenuBtn" onclick="proGo('moduleWellness')"><span class="proMenuIcon">♡</span><span>Isi Wellness / Readiness</span></button>
+  <button class="proMenuBtn" onclick="proGo('moduleTraining')"><span class="proMenuIcon">◆</span><span>Buat Program Latihan</span></button>
+  <button class="proMenuBtn" onclick="proGo('moduleExerciseLibrary')"><span class="proMenuIcon">🏋</span><span>Buka Pustaka Latihan</span></button>
+</div>
+
+<div class="proPopover" id="proProfileMenu">
+  <div class="proPopoverHead"><b id="proProfileName">Akun</b><span id="proProfileRole">SportScience Pro</span></div>
+  <button class="proMenuBtn" onclick="closeProPopovers();ubahLogin()"><span class="proMenuIcon">👤</span><span>Akun Saya</span></button>
+  <button class="proMenuBtn" onclick="closeProPopovers();cloudSyncNow(true)"><span class="proMenuIcon">☁</span><span>Simpan / Sinkronkan</span></button>
+  <div class="proMenuSeparator"></div>
+  <button class="proMenuBtn proAdminOnly" onclick="closeProPopovers();switchAdminWorkspace(cloudUser?.id||'',null,true)"><span class="proMenuIcon">⌂</span><span>Workspace Data Admin</span></button>
+  <button class="proMenuBtn proAdminOnly" onclick="closeProPopovers();loadAdminCloudData(true)"><span class="proMenuIcon">↻</span><span>Refresh Cloud</span></button>
+  <button class="proMenuBtn proAdminOnly" onclick="closeProPopovers();proOpenAdminPanel()"><span class="proMenuIcon">⚙</span><span>Kelola Pengguna</span></button>
+  <div class="proMenuSeparator"></div>
+  <button class="proMenuBtn danger" onclick="closeProPopovers();logoutApp()"><span class="proMenuIcon">↪</span><span>Keluar</span></button>
+</div>
+
+<div class="proOverlay" id="proOverlay" onclick="closeProfessionalMobileMore()"></div>
+
+<nav class="proMobileNav" id="proMobileNav" aria-label="Navigasi mobile">
+  <button class="proMobileNavBtn" data-pro-mobile="home" onclick="proGo('moduleDashboard')"><span class="ico">⌂</span><span>Home</span></button>
+  <button class="proMobileNavBtn" data-pro-mobile="athlete" onclick="proGo('moduleAthleteHub')"><span class="ico">♙</span><span>Atlet</span></button>
+  <button class="proMobileNavBtn" data-pro-mobile="test" onclick="proGo('moduleInput')"><span class="ico">◉</span><span>Tes</span></button>
+  <button class="proMobileNavBtn" data-pro-mobile="training" onclick="proGo('moduleExerciseLibrary')"><span class="ico">🏋</span><span>Latihan</span></button>
+  <button class="proMobileNavBtn" data-pro-mobile="more" onclick="openProfessionalMobileMore()"><span class="ico">☰</span><span>Lainnya</span></button>
+</nav>
+
+<section class="proMobileMore" id="proMobileMore" aria-label="Menu lainnya">
+  <div class="proMobileMoreHead"><div><b>Menu SportScience</b><br><span>Semua fitur tetap tersedia</span></div><button class="proMobileClose" type="button" onclick="closeProfessionalMobileMore()">✕</button></div>
+  <div class="proMobileMenuGrid">
+    <button class="proMobileMenuItem" onclick="proGo('moduleAnalysis')"><span class="ico">▥</span><span><b>Analisis Tim</b><span>Ringkasan performa tim</span></span></button>
+    <button class="proMobileMenuItem" onclick="proGo('moduleTrend')"><span class="ico">↗</span><span><b>Tren Atlet</b><span>Monitoring longitudinal</span></span></button>
+    <button class="proMobileMenuItem" onclick="proGo('moduleWellness')"><span class="ico">♡</span><span><b>Wellness</b><span>Readiness dan monitoring</span></span></button>
+    <button class="proMobileMenuItem" onclick="proGo('moduleTraining')"><span class="ico">◆</span><span><b>Program Latihan</b><span>Periodisasi dan prescription</span></span></button>
+    <button class="proMobileMenuItem" onclick="proGo('moduleForms')"><span class="ico">▤</span><span><b>Formulir Tes</b><span>Form lapangan dan pencatatan</span></span></button>
+    <button class="proMobileMenuItem" onclick="proGo('moduleScience')"><span class="ico">⚖</span><span><b>Norma & Validasi</b><span>Benchmark dan basis ilmiah</span></span></button>
+    <button class="proMobileMenuItem" onclick="proGo('moduleNationalSelection')"><span class="ico">🏆</span><span><b>Seleksi Nasional</b><span>Seleksi dan benchmark internal</span></span></button>
+    <button class="proMobileMenuItem proAdminOnly" onclick="proOpenAdminPanel()"><span class="ico">⚙</span><span><b>Administrasi</b><span>Pengguna dan workspace</span></span></button>
+  </div>
+  <div class="proMobileAccountBox">
+    <div class="proMobileAccountRow"><div class="proAvatar" id="proMobileAvatar">U</div><div class="proMobileAccountText"><b id="proMobileUserName">Memuat akun…</b><span id="proMobileUserRole">SportScience Pro</span></div></div>
+    <div class="proMobileAccountActions">
+      <button onclick="closeProfessionalMobileMore();ubahLogin()">Akun</button>
+      <button onclick="closeProfessionalMobileMore();cloudSyncNow(true)">Simpan Cloud</button>
+      <button class="proAdminOnly" onclick="closeProfessionalMobileMore();loadAdminCloudData(true)">Refresh Cloud</button>
+      <button class="danger" onclick="closeProfessionalMobileMore();logoutApp()">Keluar</button>
+    </div>
+  </div>
+</section>
+
 </body>
 </html>
