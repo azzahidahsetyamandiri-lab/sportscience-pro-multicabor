@@ -2602,9 +2602,10 @@ body.athlete-reload-mode #idAtlet{
 @media print{.cloudSyncBadge{display:none!important}}
 
 /* =========================================================
-   ADMIN CLOUD ONLINE V2
-   Ringkasan admin membaca seluruh row yang diizinkan RLS,
-   tanpa menyalin payload gabungan ke localStorage.
+   ADMIN CLOUD ACTIVE V3
+   Admin memiliki dashboard global sekaligus workspace operasional.
+   Workspace dapat diarahkan ke data admin sendiri atau akun pengguna
+   yang dipilih. Perubahan lintas akun tetap dijaga oleh RLS Supabase.
    ========================================================= */
 .adminCloudPanel{
   display:none;
@@ -2644,17 +2645,16 @@ body.athlete-reload-mode #idAtlet{
 .adminPresenceStrip{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:9px 10px;margin-bottom:10px;border-radius:12px;border:1px solid rgba(74,222,128,.28);background:rgba(34,197,94,.075)}
 .adminPresenceStrip b{font-size:9px;color:#fff;margin-right:3px}.presenceChip{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);font-size:8px;color:#d9f7e9}.presenceChip.online{background:rgba(34,197,94,.16);border-color:rgba(74,222,128,.42);color:#eafff0}.presenceDot{width:7px;height:7px;border-radius:50%;background:#64748b;box-shadow:0 0 0 2px rgba(100,116,139,.16)}.presenceChip.online .presenceDot{background:#4ade80;box-shadow:0 0 0 2px rgba(74,222,128,.18)}
 .onlineStatus{display:inline-flex;align-items:center;gap:5px;font-size:8px;font-weight:900;white-space:nowrap}.onlineStatus .presenceDot{width:7px;height:7px}.onlineStatus.online{color:#bbf7d0}.onlineStatus.offline{color:#cbd5e1}
-body.cloud-admin-readonly .dashboardWelcome,
-body.cloud-admin-readonly .commandGrid{display:none!important}
-body.cloud-admin-readonly #toolbarNewAthlete,
-body.cloud-admin-readonly #toolbarRefreshHistory,
-body.cloud-admin-readonly #toolbarDeleteAll{display:none!important}
-body.cloud-admin-readonly .quickNavLinks .navBtn:not([data-module="moduleDashboard"]){display:none!important}
-body.cloud-admin-readonly .commandActions,
-body.cloud-admin-readonly #dataSafetyStrip,
-body.cloud-admin-readonly .professionalColumns,
-body.cloud-admin-readonly #headCoachSection{display:none!important}
-body.cloud-admin-readonly .quickNavLinks{min-height:34px}
+/* Admin V3 tetap memakai seluruh modul aplikasi. Hapus Semua disembunyikan
+   agar admin tidak menghapus satu workspace penuh secara tidak sengaja. */
+body.cloud-admin-active #toolbarDeleteAll{display:none!important}
+.adminWorkspaceStrip{display:none;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 10px;padding:10px 11px;border-radius:13px;border:1px solid rgba(163,230,53,.30);background:linear-gradient(135deg,rgba(163,230,53,.10),rgba(45,212,168,.07))}
+body.cloud-admin-active .adminWorkspaceStrip{display:flex}
+.adminWorkspaceInfo{font-size:9.5px;line-height:1.5;color:#e8fff3}.adminWorkspaceInfo b{color:#fff}.adminWorkspaceActions{display:flex;gap:6px;flex-wrap:wrap}
+.adminAccountLink{border:0;background:transparent;color:#d9f99d;font:inherit;font-weight:900;padding:0;cursor:pointer;text-align:left}.adminAccountLink:hover{text-decoration:underline;color:#fff}
+.adminActionGroup{display:flex;gap:5px;flex-wrap:wrap}.adminMiniBtn{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;border-radius:8px;padding:5px 7px;font-size:7.6px;font-weight:900;cursor:pointer;white-space:nowrap}.adminMiniBtn:hover{background:rgba(45,212,168,.18);border-color:#5ee7bd}.adminMiniBtn.danger{background:rgba(239,68,68,.12);border-color:rgba(248,113,113,.35)}
+.adminRecordOwner{font-size:7.4px;color:#a7f3d0}.adminWorkspaceCurrent{box-shadow:inset 4px 0 0 #a3e635;background:rgba(163,230,53,.055)!important}
+.adminModal{display:none;position:fixed;inset:0;z-index:100050;align-items:center;justify-content:center;padding:20px;background:rgba(1,24,17,.74);backdrop-filter:blur(5px)}.adminModal.active{display:flex}.adminModalCard{width:min(680px,100%);max-height:88vh;overflow:auto;border-radius:18px;border:1px solid rgba(255,255,255,.22);background:linear-gradient(145deg,#0a513e,#063a2d);box-shadow:0 28px 80px rgba(0,0,0,.42);padding:16px}.adminModalHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.adminModalHead h3{margin:0;color:#fff;font-size:16px}.adminModalHead p{margin:4px 0 0;color:#c8eadb;font-size:9.5px}.adminModalClose{border:0;background:rgba(255,255,255,.10);color:#fff;border-radius:9px;width:32px;height:32px;cursor:pointer;font-size:18px}.adminModalStats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:12px 0}@media(max-width:620px){.adminModalStats{grid-template-columns:repeat(2,minmax(0,1fr))}}.adminModalStat{padding:9px;border-radius:11px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06)}.adminModalStat small{display:block;color:#bfe3d3;font-size:7.5px;text-transform:uppercase}.adminModalStat b{display:block;color:#fff;font-size:15px;margin-top:3px}.adminModalActions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.adminPermissionNote{margin-top:10px;padding:9px 10px;border-left:4px solid #38bdf8;border-radius:10px;background:rgba(56,189,248,.08);color:#dff7ff;font-size:8.7px;line-height:1.5}
 
 </style>
 </head>
@@ -2709,6 +2709,8 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
         <button id="toolbarRefreshHistory" class="btn" onclick="showModule('moduleInput');renderRiwayat()">📚 Refresh Riwayat</button>
         <button class="btn" onclick="ubahLogin()">👤 Akun</button>
         <button id="toolbarCloudSync" class="btn" onclick="cloudSyncNow(true)">☁ Sinkronkan</button>
+        <button id="toolbarAdminHome" class="btn" style="display:none" onclick="switchAdminWorkspace(cloudUser?.id||'',null,true)">🏠 Data Admin</button>
+        <button id="toolbarAdminRefresh" class="btn" style="display:none" onclick="loadAdminCloudData(true)">☁ Refresh Cloud</button>
         <button class="btn danger" onclick="logoutApp()">🚪 Keluar</button>
         <button id="toolbarDeleteAll" class="btn danger" onclick="hapusSemua()">🗑️ Hapus Semua Data</button>
       </div>
@@ -2797,12 +2799,21 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
         <div id="adminCloudPanel" class="adminCloudPanel">
           <div class="adminCloudHeader">
             <div>
-              <h3>☁ Pusat Data Admin Cloud</h3>
-              <p>Mode baca-saja. Ringkasan ini mengambil seluruh akun dan payload tes yang dapat dibaca oleh policy admin Supabase. Data gabungan tidak disalin ke localStorage admin.</p>
+              <h3>☁ Pusat Kendali Admin Cloud</h3>
+              <p>Admin dapat memantau seluruh akun, membuka workspace pengguna, menginput tes, mengoreksi rekaman, dan menghapus rekaman tes secara terkontrol. Data tetap tersimpan pada pemilik yang dipilih.</p>
             </div>
             <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
               <span class="adminCloudBadge" id="adminCloudLoadedAt">Belum dimuat</span>
               <button class="btn" onclick="loadAdminCloudData(true)">↻ Refresh Cloud</button>
+            </div>
+          </div>
+          <div id="adminWorkspaceStrip" class="adminWorkspaceStrip">
+            <div class="adminWorkspaceInfo"><b id="adminWorkspaceTitle">Workspace aktif: Data Admin</b><br><span id="adminWorkspaceSubtitle">Input baru akan tersimpan pada akun admin.</span></div>
+            <div class="adminWorkspaceActions">
+              <button class="btn primary" onclick="showModule('moduleInput');resetForm(true)">➕ Input Tes Baru</button>
+              <button class="btn" onclick="showModule('moduleInput')">📋 Riwayat Workspace</button>
+              <button class="btn" onclick="cloudSyncNow(true)">☁ Simpan Workspace</button>
+              <button class="btn" onclick="switchAdminWorkspace(cloudUser?.id||'',null,true)">🏠 Kembali ke Data Admin</button>
             </div>
           </div>
           <div class="adminCloudMetricGrid">
@@ -2820,8 +2831,8 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
             <div class="adminCloudSectionHead"><b>Daftar Akun Cloud</b><span id="adminCloudAccountInfo">0 akun</span></div>
             <div class="adminCloudTableWrap">
               <table class="adminCloudTable">
-                <thead><tr><th>Nama / Email</th><th>Koneksi</th><th>Role</th><th>Status</th><th class="num">Rekaman</th><th class="num">Atlet</th><th>Sinkron Terakhir</th></tr></thead>
-                <tbody id="adminCloudAccountBody"><tr><td colspan="7" class="adminCloudEmpty">Data cloud belum dimuat.</td></tr></tbody>
+                <thead><tr><th>Nama / Email</th><th>Koneksi</th><th>Role</th><th>Status</th><th class="num">Rekaman</th><th class="num">Atlet</th><th>Sinkron Terakhir</th><th>Aksi</th></tr></thead>
+                <tbody id="adminCloudAccountBody"><tr><td colspan="8" class="adminCloudEmpty">Data cloud belum dimuat.</td></tr></tbody>
               </table>
             </div>
           </div>
@@ -2834,12 +2845,12 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
             </div>
             <div class="adminCloudTableWrap">
               <table class="adminCloudTable">
-                <thead><tr><th>Atlet</th><th>Pemilik Data</th><th>Cabor</th><th>Tanggal Tes</th><th class="num">Nilai</th><th>Kategori</th><th>Kesiapan</th></tr></thead>
-                <tbody id="adminCloudRecordBody"><tr><td colspan="7" class="adminCloudEmpty">Data cloud belum dimuat.</td></tr></tbody>
+                <thead><tr><th>Atlet</th><th>Pemilik Data</th><th>Cabor</th><th>Tanggal Tes</th><th class="num">Nilai</th><th>Kategori</th><th>Kesiapan</th><th>Aksi Admin</th></tr></thead>
+                <tbody id="adminCloudRecordBody"><tr><td colspan="8" class="adminCloudEmpty">Data cloud belum dimuat.</td></tr></tbody>
               </table>
             </div>
           </div>
-          <div class="adminCloudNotice"><b>Tahap keamanan V2:</b> admin hanya membaca data cloud pada halaman Ringkasan. Fitur edit dan hapus lintas akun belum diaktifkan. Modul operasional pelatih sengaja disembunyikan pada mode admin ini agar tidak terjadi perubahan lokal yang disangka sebagai perubahan data cloud.</div>
+          <div class="adminCloudNotice"><b>Mode Admin Aktif V3:</b> klik nama akun untuk melihat detail. Tombol <b>Kelola</b> memindahkan workspace aplikasi ke akun tersebut sehingga seluruh modul, input tes, edit, program latihan, dan analisis bekerja pada data pemilik terpilih. Gunakan <b>Data Admin</b> untuk kembali menginput tes milik admin sendiri.</div>
         </div>
 
         <div class="commandGrid">
@@ -4530,6 +4541,16 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
 
   </div>
 
+<div id="adminAccountModal" class="adminModal" onclick="if(event.target===this)closeAdminAccountDetail()">
+  <div class="adminModalCard">
+    <div class="adminModalHead">
+      <div><h3 id="adminModalName">Detail Akun</h3><p id="adminModalEmail">-</p></div>
+      <button class="adminModalClose" onclick="closeAdminAccountDetail()">×</button>
+    </div>
+    <div id="adminModalBody"></div>
+  </div>
+</div>
+
 <script>
   // =========================================================
   // SUPABASE CLOUD CONFIGURATION
@@ -4543,7 +4564,10 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
   const CLOUD_KEY_STORE = 'sportscience_cloud_publishable_key';
   const CLOUD_MARKER_PREFIX = 'sportscience_cloud_marker_';
   const CLOUD_LAST_USER_STORE = 'sportscience_cloud_last_user';
-  const CLOUD_CONFIG_KEYS = new Set([CLOUD_URL_STORE,CLOUD_KEY_STORE,CLOUD_LAST_USER_STORE]);
+  const ADMIN_ACTIVE_OWNER_SESSION = 'sportscience_admin_active_owner_v3';
+  const ADMIN_PENDING_ACTION_SESSION = 'sportscience_admin_pending_action_v3';
+  const ADMIN_WORKSPACE_OWNER_LOCAL = 'sportscience_admin_workspace_owner_v3';
+  const CLOUD_CONFIG_KEYS = new Set([CLOUD_URL_STORE,CLOUD_KEY_STORE,CLOUD_LAST_USER_STORE,ADMIN_WORKSPACE_OWNER_LOCAL]);
 
   let cloudClient = null;
   let cloudUser = null;
@@ -4559,6 +4583,7 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
   let adminCloudLoadedAt = null;
   let cloudPresenceChannel = null;
   let cloudPresenceUsers = new Map();
+  let adminActiveOwnerId = null;
 
   const nativeStorageSetItem = Storage.prototype.setItem;
   const nativeStorageRemoveItem = Storage.prototype.removeItem;
@@ -4653,6 +4678,158 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
   function isCloudAdmin(){
     return String(cloudProfile?.role||'').toLowerCase()==='admin' &&
       String(cloudProfile?.approval_status||'').toLowerCase()==='approved';
+  }
+  function adminWorkspaceOwnerId(){
+    if(!isCloudAdmin()||!cloudUser)return cloudUser?.id||'';
+    const stored=sessionStorage.getItem(ADMIN_ACTIVE_OWNER_SESSION)||'';
+    return stored||cloudUser.id;
+  }
+
+  function adminWorkspaceRow(){
+    const id=adminWorkspaceOwnerId();
+    return (adminCloudRows||[]).find(r=>String(r.user_id)===String(id)) ||
+      (String(id)===String(cloudUser?.id)?cloudProfile:null);
+  }
+
+  function adminWorkspaceLabel(){
+    const row=adminWorkspaceRow();
+    if(!row)return 'Data Admin';
+    const own=String(row.user_id)===String(cloudUser?.id);
+    return own?'Data Admin':`${row.full_name||row.email||'Pengguna'} • ${row.role||'user'}`;
+  }
+
+  function setAdminPendingAction(action){
+    if(!action){sessionStorage.removeItem(ADMIN_PENDING_ACTION_SESSION);return;}
+    sessionStorage.setItem(ADMIN_PENDING_ACTION_SESSION,JSON.stringify(action));
+  }
+
+  async function switchAdminWorkspace(ownerId,pendingAction=null,showMessage=false){
+    if(!isCloudAdmin())return false;
+    ownerId=String(ownerId||cloudUser?.id||'');
+    if(!ownerId)return false;
+    if(!adminCloudRows.length)await loadAdminCloudData(false);
+    const target=(adminCloudRows||[]).find(r=>String(r.user_id)===ownerId);
+    if(!target){alert('Akun tujuan tidak ditemukan atau tidak dapat dibaca oleh admin.');return false;}
+    const current=adminWorkspaceOwnerId();
+    if(current && nativeStorageGet(ADMIN_WORKSPACE_OWNER_LOCAL)===current){
+      try{await cloudPushNow(false);}catch(err){
+        if(!confirm('Workspace aktif belum berhasil disimpan ke cloud. Tetap berpindah?\n\n'+(err.message||err)))return false;
+      }
+    }
+    sessionStorage.setItem(ADMIN_ACTIVE_OWNER_SESSION,ownerId);
+    setAdminPendingAction(pendingAction);
+    applyCloudPayload(target.payload&&typeof target.payload==='object'?target.payload:{});
+    nativeStorageSetItem.call(localStorage,ADMIN_WORKSPACE_OWNER_LOCAL,ownerId);
+    nativeStorageSetItem.call(localStorage,cloudMarkerKey(ownerId),target.updated_at||'');
+    if(showMessage)showProfessionalToast('Workspace admin dialihkan',`${target.full_name||target.email} menjadi pemilik data aktif.`);
+    location.reload();
+    return true;
+  }
+
+  function closeAdminAccountDetail(){document.getElementById('adminAccountModal')?.classList.remove('active');}
+
+  function openAdminAccountDetail(userId){
+    const row=(adminCloudRows||[]).find(r=>String(r.user_id)===String(userId));
+    if(!row)return;
+    const records=extractCloudAthletes(row);
+    const unique=new Set(records.map(a=>cloudRecordIdentity(row.user_id,a))).size;
+    const online=isCloudUserOnline(row.user_id);
+    const own=String(row.user_id)===String(cloudUser?.id);
+    const active=String(row.user_id)===String(adminWorkspaceOwnerId());
+    document.getElementById('adminModalName').textContent=row.full_name||'Pengguna';
+    document.getElementById('adminModalEmail').textContent=row.email||'-';
+    document.getElementById('adminModalBody').innerHTML=`
+      <div class="adminModalStats">
+        <div class="adminModalStat"><small>Role</small><b>${cloudHtml(row.role||'-')}</b></div>
+        <div class="adminModalStat"><small>Status</small><b>${cloudHtml(row.approval_status||'-')}</b></div>
+        <div class="adminModalStat"><small>Koneksi</small><b>${online?'ONLINE':'Offline'}</b></div>
+        <div class="adminModalStat"><small>Rekaman / Atlet</small><b>${records.length} / ${unique}</b></div>
+      </div>
+      <div class="adminPermissionNote">${active?'<b>Workspace ini sedang aktif.</b> Seluruh modul aplikasi saat ini bekerja pada data akun ini.':`Klik <b>Kelola Workspace</b> untuk membuka seluruh modul dengan data ${cloudHtml(row.full_name||row.email)}.`}</div>
+      <div class="adminModalActions">
+        <button class="btn primary" onclick="switchAdminWorkspace('${cloudHtml(row.user_id)}',null,true)">${active?'↻ Muat Ulang Workspace':'🛠 Kelola Workspace'}</button>
+        <button class="btn" onclick="switchAdminWorkspace('${cloudHtml(row.user_id)}',{action:'new'},true)">➕ Input Tes untuk Akun Ini</button>
+        <button class="btn" onclick="adminFilterOwner('${cloudHtml(row.user_id)}')">📋 Lihat Rekaman</button>
+        ${!own?'<button class="btn" onclick="switchAdminWorkspace(cloudUser.id,null,true)">🏠 Data Admin</button>':''}
+      </div>`;
+    document.getElementById('adminAccountModal')?.classList.add('active');
+  }
+
+  function adminFilterOwner(userId){
+    closeAdminAccountDetail();
+    const filter=document.getElementById('adminCloudOwnerFilter');
+    if(filter){filter.value=String(userId||'');renderAdminCloudRecords();}
+    document.getElementById('adminCloudRecordBody')?.closest('.adminCloudSection')?.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  async function adminOpenCloudRecord(ownerId,recordId,mode='view'){
+    const action=mode==='edit'?'edit':'view';
+    return switchAdminWorkspace(ownerId,{action,recordId},true);
+  }
+
+  async function adminDeleteCloudRecord(ownerId,recordId){
+    if(!isCloudAdmin())return false;
+    const row=(adminCloudRows||[]).find(r=>String(r.user_id)===String(ownerId));
+    if(!row){alert('Pemilik data tidak ditemukan.');return false;}
+    const records=extractCloudAthletes(row).map(({_cloudOwnerId,_cloudOwnerName,_cloudOwnerEmail,_cloudOwnerRole,...r})=>r);
+    const target=records.find(r=>String(r.id)===String(recordId));
+    if(!target){alert('Rekaman tes tidak ditemukan.');return false;}
+    if(!confirm(`Hapus rekaman tes ${target.nama||'atlet'} (${target.tglTes||'-'}) dari akun ${row.full_name||row.email}?\n\nAkun pengguna tidak akan dihapus.`))return false;
+    const next=records.filter(r=>String(r.id)!==String(recordId));
+    const payload={...(row.payload&&typeof row.payload==='object'?row.payload:{})};
+    payload['tes_fisik_atlet_final_v1']=JSON.stringify(next);
+    const client=getCloudClient();
+    try{
+      setCloudStatus('☁ Admin: menghapus rekaman…','syncing');
+      let deleteQuery=client.from(CLOUD_TABLE)
+        .update({payload,updated_at:new Date().toISOString()})
+        .eq('user_id',ownerId);
+      if(row.updated_at)deleteQuery=deleteQuery.eq('updated_at',row.updated_at);
+      const {data,error}=await deleteQuery
+        .select('user_id,payload,updated_at')
+        .maybeSingle();
+      if(error)throw error;
+      if(!data)throw new Error('Konflik data: payload pengguna berubah sejak dashboard terakhir dimuat. Klik Refresh Cloud sebelum menghapus.');
+      const idx=adminCloudRows.findIndex(r=>String(r.user_id)===String(ownerId));
+      if(idx>=0)adminCloudRows[idx]={...adminCloudRows[idx],payload:data.payload,updated_at:data.updated_at};
+      adminCloudAthletes=adminCloudRows.flatMap(extractCloudAthletes);
+      if(String(adminWorkspaceOwnerId())===String(ownerId)){
+        applyCloudPayload(data.payload||{});
+        nativeStorageSetItem.call(localStorage,ADMIN_WORKSPACE_OWNER_LOCAL,ownerId);
+        nativeStorageSetItem.call(localStorage,cloudMarkerKey(ownerId),data.updated_at||'');
+        location.reload();
+        return true;
+      }
+      renderAdminCloudPanel();
+      setCloudStatus('☁ Rekaman berhasil dihapus','online');
+      showProfessionalToast('Rekaman tes dihapus',`${target.nama||'Atlet'} • ${row.full_name||row.email}`);
+      return true;
+    }catch(err){
+      console.error(err);
+      alert('Gagal menghapus rekaman. Pastikan policy UPDATE admin V3 sudah dijalankan di Supabase.\n\n'+(err.message||err));
+      setCloudStatus('☁ Admin tidak memiliki izin update','error');
+      return false;
+    }
+  }
+
+  function handleAdminPendingAction(){
+    if(!isCloudAdmin())return false;
+    let action=null;
+    try{action=JSON.parse(sessionStorage.getItem(ADMIN_PENDING_ACTION_SESSION)||'null');}catch(_){action=null;}
+    sessionStorage.removeItem(ADMIN_PENDING_ACTION_SESSION);
+    if(!action)return false;
+    if(action.action==='new'){
+      showModule('moduleInput');resetForm(true);
+      setTimeout(()=>document.getElementById('nama')?.focus(),80);
+      return true;
+    }
+    if(action.recordId && action.action==='edit'){
+      editAtlet(action.recordId);return true;
+    }
+    if(action.recordId && action.action==='view'){
+      muatUlangAtlet(action.recordId);return true;
+    }
+    return false;
   }
 
   function cloudHtml(value){
@@ -4775,17 +4952,34 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
     const logged=document.getElementById('loggedUserMini');
     const source=document.getElementById('dataSourceMini');
     const syncBtn=document.getElementById('toolbarCloudSync');
+    const homeBtn=document.getElementById('toolbarAdminHome');
+    const refreshBtn=document.getElementById('toolbarAdminRefresh');
+    const newBtn=document.getElementById('toolbarNewAthlete');
     const role=String(cloudProfile?.role||'').toLowerCase();
     const roleLabel=role==='admin'?'Admin':role==='individu'?'Individu':role==='pelatih'?'Pelatih':'User';
     const person=cloudProfile?.full_name||cloudUser?.email||'-';
     if(logged)logged.textContent=`${roleLabel}: ${person}`;
-    document.body.classList.toggle('cloud-admin-readonly',isCloudAdmin());
+    document.body.classList.toggle('cloud-admin-active',isCloudAdmin());
+    document.body.classList.remove('cloud-admin-readonly');
     if(isCloudAdmin()){
-      if(source){source.textContent='☁ Seluruh data cloud';source.className='statusMini ok';}
-      if(syncBtn){syncBtn.textContent='☁ Refresh Cloud';syncBtn.setAttribute('onclick','loadAdminCloudData(true)');}
+      const owner=adminWorkspaceRow();
+      const ownerLabel=adminWorkspaceLabel();
+      const isOwn=String(adminWorkspaceOwnerId())===String(cloudUser?.id);
+      if(source){source.textContent=`☁ Workspace: ${ownerLabel}`;source.className='statusMini ok';}
+      if(syncBtn){syncBtn.textContent='☁ Simpan Workspace';syncBtn.setAttribute('onclick','cloudSyncNow(true)');}
+      if(homeBtn)homeBtn.style.display=isOwn?'none':'inline-flex';
+      if(refreshBtn)refreshBtn.style.display='inline-flex';
+      if(newBtn){newBtn.textContent='➕ Input Tes Baru';newBtn.title=`Data baru tersimpan pada ${ownerLabel}`;}
+      const title=document.getElementById('adminWorkspaceTitle');
+      const sub=document.getElementById('adminWorkspaceSubtitle');
+      if(title)title.textContent=`Workspace aktif: ${ownerLabel}`;
+      if(sub)sub.textContent=isOwn?'Input baru tersimpan pada akun admin sendiri. Cocok untuk tes kerja sama dengan instansi lain.':`Anda sedang mengelola data milik ${owner?.full_name||owner?.email||'pengguna'}. Input, edit, program, dan analisis akan tersimpan pada akun ini.`;
     }else{
       if(source){source.textContent='● Data kerja lokal';source.className='statusMini ok';}
       if(syncBtn){syncBtn.textContent='☁ Sinkronkan';syncBtn.setAttribute('onclick','cloudSyncNow(true)');}
+      if(homeBtn)homeBtn.style.display='none';
+      if(refreshBtn)refreshBtn.style.display='none';
+      if(newBtn)newBtn.textContent='➕ Atlet Baru';
     }
     const panel=document.getElementById('adminCloudPanel');
     if(panel)panel.classList.toggle('active',isCloudAdmin());
@@ -4817,7 +5011,10 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
     const info=document.getElementById('adminCloudAccountInfo');
     const ownerFilter=document.getElementById('adminCloudOwnerFilter');
     if(!body)return;
+    const activeOwner=adminWorkspaceOwnerId();
     const rows=[...(adminCloudRows||[])].sort((a,b)=>{
+      const aa=String(a.user_id)===String(activeOwner)?1:0, ba=String(b.user_id)===String(activeOwner)?1:0;
+      if(aa!==ba)return ba-aa;
       const ao=isCloudUserOnline(a.user_id)?1:0, bo=isCloudUserOnline(b.user_id)?1:0;
       if(ao!==bo)return bo-ao;
       return String(a.full_name||a.email||'').localeCompare(String(b.full_name||b.email||''),'id');
@@ -4827,12 +5024,11 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
     if(ownerFilter){
       const current=ownerFilter.value;
       ownerFilter.innerHTML='<option value="">Semua pemilik data</option>'+rows
-        .filter(r=>String(r.role).toLowerCase()!=='admin')
         .map(r=>`<option value="${cloudHtml(r.user_id)}">${cloudHtml(r.full_name||r.email||'Pengguna')} • ${cloudHtml(r.role||'-')}</option>`).join('');
       if([...ownerFilter.options].some(o=>o.value===current))ownerFilter.value=current;
     }
     if(!rows.length){
-      body.innerHTML='<tr><td colspan="7" class="adminCloudEmpty">Tidak ada row yang dapat dibaca dari Supabase.</td></tr>';
+      body.innerHTML='<tr><td colspan="8" class="adminCloudEmpty">Tidak ada row yang dapat dibaca dari Supabase.</td></tr>';
       return;
     }
     body.innerHTML=rows.map(row=>{
@@ -4840,14 +5036,16 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
       const unique=new Set(records.map(a=>cloudRecordIdentity(row.user_id,a))).size;
       const updated=row.updated_at?new Date(row.updated_at).toLocaleString('id-ID'):'-';
       const online=isCloudUserOnline(row.user_id);
-      return `<tr>
-        <td><b>${cloudHtml(row.full_name||'-')}</b><br><small>${cloudHtml(row.email||'-')}</small></td>
+      const active=String(row.user_id)===String(activeOwner);
+      return `<tr class="${active?'adminWorkspaceCurrent':''}">
+        <td><button class="adminAccountLink" onclick="openAdminAccountDetail('${cloudHtml(row.user_id)}')">${cloudHtml(row.full_name||'-')}</button><br><small>${cloudHtml(row.email||'-')}</small>${active?'<br><span class="adminCloudOwner">WORKSPACE AKTIF</span>':''}</td>
         <td><span class="onlineStatus ${online?'online':'offline'}"><span class="presenceDot"></span>${online?'ONLINE':'Offline'}</span></td>
         <td>${cloudHtml(row.role||'-')}</td>
         <td>${cloudHtml(row.approval_status||'-')}</td>
         <td class="num"><b>${records.length}</b></td>
         <td class="num">${unique}</td>
         <td>${cloudHtml(updated)}</td>
+        <td><div class="adminActionGroup"><button class="adminMiniBtn" onclick="openAdminAccountDetail('${cloudHtml(row.user_id)}')">Detail</button><button class="adminMiniBtn" onclick="switchAdminWorkspace('${cloudHtml(row.user_id)}',null,true)">Kelola</button><button class="adminMiniBtn" onclick="adminFilterOwner('${cloudHtml(row.user_id)}')">Data</button></div></td>
       </tr>`;
     }).join('');
   }
@@ -4866,7 +5064,7 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
     list.sort((a,b)=>String(b.tglTes||b.createdAt||'').localeCompare(String(a.tglTes||a.createdAt||'')) || String(a.nama||'').localeCompare(String(b.nama||''),'id'));
     if(info)info.textContent=`${list.length} dari ${(adminCloudAthletes||[]).length} rekaman`;
     if(!list.length){
-      body.innerHTML='<tr><td colspan="7" class="adminCloudEmpty">Tidak ada rekaman yang sesuai filter.</td></tr>';
+      body.innerHTML='<tr><td colspan="8" class="adminCloudEmpty">Tidak ada rekaman yang sesuai filter.</td></tr>';
       return;
     }
     body.innerHTML=list.map(a=>{
@@ -4874,12 +5072,13 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
       const readiness=a?.readiness?.label||a?.statusTes||'-';
       return `<tr>
         <td><b>${cloudHtml(a.nama||'-')}</b>${a.kodeAtlet?`<br><small>${cloudHtml(a.kodeAtlet)}</small>`:''}</td>
-        <td><b>${cloudHtml(a._cloudOwnerName||'-')}</b><span class="adminCloudOwner">${cloudHtml(a._cloudOwnerEmail||'')}</span></td>
+        <td><button class="adminAccountLink" onclick="openAdminAccountDetail('${cloudHtml(a._cloudOwnerId)}')">${cloudHtml(a._cloudOwnerName||'-')}</button><span class="adminRecordOwner">${cloudHtml(a._cloudOwnerEmail||'')}</span></td>
         <td>${cloudHtml(a.cabor||'-')}</td>
         <td>${cloudHtml(a.tglTes||'-')}</td>
         <td class="num">${Number.isFinite(score)?score.toFixed(1)+'%':'-'}</td>
         <td>${cloudHtml(a.kategoriAkhir||'-')}</td>
         <td>${cloudHtml(readiness)}</td>
+        <td><div class="adminActionGroup"><button class="adminMiniBtn" onclick="adminOpenCloudRecord('${cloudHtml(a._cloudOwnerId)}','${cloudHtml(a.id)}','view')">Lihat</button><button class="adminMiniBtn" onclick="adminOpenCloudRecord('${cloudHtml(a._cloudOwnerId)}','${cloudHtml(a.id)}','edit')">Edit</button><button class="adminMiniBtn danger" onclick="adminDeleteCloudRecord('${cloudHtml(a._cloudOwnerId)}','${cloudHtml(a.id)}')">Hapus</button></div></td>
       </tr>`;
     }).join('');
   }
@@ -4919,7 +5118,7 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
       renderAdminCloudPanel();
       updateProfessionalDashboard();
       const sum=adminCloudSummary();
-      setCloudStatus(`☁ Admin Cloud • ${sum.accounts} akun • ${sum.records} rekaman • baca-saja`,'online');
+      setCloudStatus(`☁ Admin Aktif • ${sum.accounts} akun • ${sum.records} rekaman • ${adminWorkspaceLabel()}`,'online');
       if(showMessage)showProfessionalToast('Data cloud diperbarui',`${sum.accounts} akun • ${sum.records} rekaman tes • ${sum.unique} atlet unik`);
       return true;
     }catch(err){
@@ -4931,7 +5130,7 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
   }
 
   function cloudScheduleSync(){
-    if(!cloudReady || !cloudUser || cloudApplyingRemote || isCloudAdmin()) return;
+    if(!cloudReady || !cloudUser || cloudApplyingRemote) return;
     clearTimeout(cloudSyncTimer);
     setCloudStatus('☁ Menunggu sinkronisasi…','syncing');
     cloudSyncTimer=setTimeout(()=>cloudPushNow().catch(err=>setCloudStatus('☁ Gagal: '+err.message,'error')),500);
@@ -4968,28 +5167,47 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
       if(showMessage) alert('Akun belum disetujui atau data cloud belum siap.');
       return false;
     }
-    if(isCloudAdmin()){
-      return loadAdminCloudData(showMessage);
-    }
+    const targetUserId=isCloudAdmin()?adminWorkspaceOwnerId():cloudUser.id;
     clearTimeout(cloudSyncTimer);
     setCloudStatus('☁ Menyimpan ke cloud…','syncing');
     const changes={
       payload:collectCloudPayload(),
       updated_at:new Date().toISOString()
     };
-    const {data,error}=await client.from(CLOUD_TABLE)
+    let updateQuery=client.from(CLOUD_TABLE)
       .update(changes)
-      .eq('user_id',cloudUser.id)
-      .select('updated_at,approval_status')
-      .single();
+      .eq('user_id',targetUserId);
+    // Optimistic concurrency guard untuk admin yang mengelola akun lain.
+    // Jika pelatih melakukan sinkronisasi setelah workspace admin dimuat,
+    // perubahan admin dibatalkan agar payload terbaru tidak tertimpa.
+    if(isCloudAdmin() && String(targetUserId)!==String(cloudUser.id)){
+      const knownVersion=nativeStorageGet(cloudMarkerKey(targetUserId));
+      if(knownVersion)updateQuery=updateQuery.eq('updated_at',knownVersion);
+    }
+    const {data,error}=await updateQuery
+      .select('updated_at,approval_status,payload,user_id')
+      .maybeSingle();
     if(error) throw error;
+    if(!data){
+      throw new Error('Konflik data: akun yang sedang dikelola telah berubah di cloud. Kembali ke Ringkasan, klik Refresh Cloud, lalu buka workspace pengguna tersebut lagi.');
+    }
     if(data.approval_status!=='approved'){
       cloudReady=false;
       throw new Error(approvalStatusMessage(data.approval_status));
     }
-    nativeStorageSetItem.call(localStorage,cloudMarkerKey(cloudUser.id),data.updated_at);
-    setCloudStatus('☁ Tersimpan online','online');
-    if(showMessage) alert('Data berhasil disinkronkan ke cloud.');
+    nativeStorageSetItem.call(localStorage,cloudMarkerKey(targetUserId),data.updated_at);
+    if(isCloudAdmin()){
+      nativeStorageSetItem.call(localStorage,ADMIN_WORKSPACE_OWNER_LOCAL,targetUserId);
+      const idx=adminCloudRows.findIndex(r=>String(r.user_id)===String(targetUserId));
+      if(idx>=0)adminCloudRows[idx]={...adminCloudRows[idx],payload:data.payload,updated_at:data.updated_at};
+      adminCloudAthletes=adminCloudRows.flatMap(extractCloudAthletes);
+      renderAdminCloudPanel();
+      setCloudStatus(`☁ Workspace tersimpan • ${adminWorkspaceLabel()}`,'online');
+      if(showMessage)showProfessionalToast('Workspace berhasil disimpan',adminWorkspaceLabel());
+    }else{
+      setCloudStatus('☁ Tersimpan online','online');
+      if(showMessage) alert('Data berhasil disinkronkan ke cloud.');
+    }
     return true;
   }
 
@@ -5039,15 +5257,32 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
     updateCloudIdentityUI();
     const previousUser=nativeStorageGet(CLOUD_LAST_USER_STORE);
 
-    // Admin Cloud V2 bersifat baca-saja dan menampilkan presence pengguna. Jangan memasukkan gabungan payload ke localStorage.
+    // Admin V3 memiliki workspace aktif. Default adalah payload admin sendiri;
+    // admin dapat memindahkan workspace ke akun lain melalui dashboard.
     if(isCloudAdmin()){
-      if(previousUser && previousUser!==cloudUser.id){
-        applyCloudPayload({});
-      }
-      nativeStorageSetItem.call(localStorage,CLOUD_LAST_USER_STORE,cloudUser.id);
-      nativeStorageSetItem.call(localStorage,cloudMarkerKey(cloudUser.id),row.updated_at||'');
       cloudReady=true;
       await loadAdminCloudData(false);
+      let ownerId=sessionStorage.getItem(ADMIN_ACTIVE_OWNER_SESSION)||cloudUser.id;
+      let ownerRow=(adminCloudRows||[]).find(r=>String(r.user_id)===String(ownerId));
+      if(!ownerRow){ownerId=cloudUser.id;ownerRow=row;sessionStorage.setItem(ADMIN_ACTIVE_OWNER_SESSION,ownerId);}
+      adminActiveOwnerId=ownerId;
+      const localOwner=nativeStorageGet(ADMIN_WORKSPACE_OWNER_LOCAL)||'';
+      const marker=nativeStorageGet(cloudMarkerKey(ownerId));
+      const remotePayload=ownerRow.payload&&typeof ownerRow.payload==='object'?ownerRow.payload:{};
+      const localPayload=collectCloudPayload();
+      const differs=cloudPayloadSignature(remotePayload)!==cloudPayloadSignature(localPayload);
+      nativeStorageSetItem.call(localStorage,CLOUD_LAST_USER_STORE,cloudUser.id);
+      if(localOwner!==ownerId || (differs && marker!==ownerRow.updated_at)){
+        applyCloudPayload(remotePayload);
+        nativeStorageSetItem.call(localStorage,ADMIN_WORKSPACE_OWNER_LOCAL,ownerId);
+        nativeStorageSetItem.call(localStorage,cloudMarkerKey(ownerId),ownerRow.updated_at||'');
+        location.reload();
+        return false;
+      }
+      nativeStorageSetItem.call(localStorage,ADMIN_WORKSPACE_OWNER_LOCAL,ownerId);
+      nativeStorageSetItem.call(localStorage,cloudMarkerKey(ownerId),ownerRow.updated_at||'');
+      if(differs)await cloudPushNow(false);
+      updateCloudIdentityUI();
       return true;
     }
 
@@ -5219,6 +5454,9 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
       const client=getCloudClient();
       if(client)await client.auth.signOut();
     }catch(err){console.warn(err);}
+    sessionStorage.removeItem(ADMIN_ACTIVE_OWNER_SESSION);
+    sessionStorage.removeItem(ADMIN_PENDING_ACTION_SESSION);
+    adminActiveOwnerId=null;
     cloudUser=null;cloudProfile=null;cloudReady=false;adminCloudRows=[];adminCloudAthletes=[];adminCloudLoadedAt=null;
     updateCloudIdentityUI();
     document.getElementById('loginOverlay').classList.remove('hidden');
@@ -5241,7 +5479,7 @@ body.cloud-admin-readonly .quickNavLinks{min-height:34px}
 
   window.addEventListener('online',()=>{if(cloudUser){setCloudStatus('☁ Koneksi kembali • menyinkronkan','syncing');cloudScheduleSync();}});
   window.addEventListener('offline',()=>setCloudStatus('☁ Offline • perubahan menunggu koneksi','offline'));
-  window.addEventListener('beforeunload',()=>{if(cloudReady&&cloudUser&&!isCloudAdmin())cloudPushNow(false).catch(()=>{});});
+  window.addEventListener('beforeunload',()=>{if(cloudReady&&cloudUser)cloudPushNow(false).catch(()=>{});});
 
   // ===================== STORAGE =====================
   const STORE_KEY  = 'tes_fisik_atlet_final_v1';
@@ -16110,8 +16348,11 @@ ${css}
     }
     document.getElementById('wellnessDate').value=today.toISOString().slice(0,10);
     resetWellnessPreview();
-    showModule('moduleDashboard',false);
-    history.replaceState(null,'','#ringkasan');
+    const adminActionHandled=handleAdminPendingAction();
+    if(!adminActionHandled){
+      showModule('moduleDashboard',false);
+      history.replaceState(null,'','#ringkasan');
+    }
     document.querySelector('.wrap')?.addEventListener('input',scheduleDraftSave);
     document.querySelector('.wrap')?.addEventListener('change',scheduleDraftSave);
     syncTrainingDays();
@@ -16123,6 +16364,7 @@ ${css}
     authClient?.auth.onAuthStateChange((event,session)=>{
       if(event==='SIGNED_OUT'){
         cloudPresenceChannel=null;cloudPresenceUsers=new Map();
+        sessionStorage.removeItem(ADMIN_ACTIVE_OWNER_SESSION);sessionStorage.removeItem(ADMIN_PENDING_ACTION_SESSION);adminActiveOwnerId=null;
         cloudUser=null;cloudProfile=null;cloudReady=false;adminCloudRows=[];adminCloudAthletes=[];adminCloudLoadedAt=null;
         updateCloudIdentityUI();
         document.getElementById('loginOverlay')?.classList.remove('hidden');
