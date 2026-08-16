@@ -3116,6 +3116,20 @@ body.proUiReady .proRxExerciseGrid{max-width:100%}
   }
 }
 
+
+/* =========================================================
+   V6.1.3 LEGACY CLOUD BADGE REMOVED
+   The old floating "Admin Safe • Data Admin" badge is redundant.
+   Cloud/save state is already shown in the professional top bar.
+   Hide it at ALL viewport sizes, including Android Desktop Site mode.
+   ========================================================= */
+#cloudSyncBadge,
+.cloudSyncBadge{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+
 </style>
 </head>
 
@@ -11905,7 +11919,7 @@ Data belum dihapus permanen dan baru akan masuk cloud setelah Anda menekan Simpa
   ];
 
 
-  // ===== V6.1.2 PROFESSIONAL UI + MOBILE OVERLAY FIX =====
+  // ===== V6.1.3 PROFESSIONAL UI + LEGACY BADGE REMOVED =====
   // Video Pexels dikurasi per exercise untuk mengurangi duplikasi dan meningkatkan kualitas visual. Video digunakan sebagai visualisasi edukatif. Video dengan match="pattern"
   // hanya memperlihatkan pola gerak yang berdekatan, bukan demonstrasi identik.
   const EXERCISE_VIDEO_LIBRARY={
