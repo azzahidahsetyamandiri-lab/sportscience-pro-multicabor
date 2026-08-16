@@ -2809,7 +2809,7 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
 
 
 /* =========================================================
-   V6.1 PROFESSIONAL RESPONSIVE UI
+   V6.1.1 PROFESSIONAL RESPONSIVE UI
    Elegant desktop sidebar + mobile bottom navigation
    ========================================================= */
 :root{
@@ -5310,10 +5310,24 @@ body.proUiReady .proRxExerciseGrid{max-width:100%}
     return cloudClient;
   }
 
+  const CLOUD_LOCAL_ONLY_KEYS = new Set([
+    'sportscience_form_draft_v1',
+    'sportscience_pro_ui_sidebar_collapsed_v1'
+  ]);
+
   function isAppDataKey(key){
     if(!key || CLOUD_CONFIG_KEYS.has(key) || key.startsWith(CLOUD_MARKER_PREFIX)) return false;
-    if(key==='sportscience_login_v1') return false;
+    if(key==='sportscience_login_v1' || CLOUD_LOCAL_ONLY_KEYS.has(key)) return false;
     return key.startsWith('tes_fisik_') || key.startsWith('sportscience_') || key.startsWith('program_latihan_');
+  }
+
+  function cloudPayloadWithoutLocalOnly(payload){
+    const out={};
+    if(!payload || typeof payload!=='object') return out;
+    Object.entries(payload).forEach(([key,value])=>{
+      if(!CLOUD_LOCAL_ONLY_KEYS.has(key)) out[key]=value;
+    });
+    return out;
   }
 
   Storage.prototype.setItem=function(key,value){
@@ -5465,23 +5479,35 @@ Sistem sengaja membatalkan perpindahan agar data tidak tertimpa.`);
   }
 
   function chooseAdminWorkspacePayload(row){
-    const remotePayload=row?.payload&&typeof row.payload==='object'?row.payload:{};
+    const remotePayload=cloudPayloadWithoutLocalOnly(
+      row?.payload&&typeof row.payload==='object'?row.payload:{}
+    );
     const cache=readAdminWorkspaceCache(row?.user_id);
     if(!cache||!cache.dirty||!cache.payload)return {payload:remotePayload,dirty:false};
+
+    const safeCachePayload=cloudPayloadWithoutLocalOnly(cache.payload);
     const sameBase=String(cache.baseUpdatedAt||'')===String(row?.updated_at||'');
     if(!sameBase){
-      // Cloud sudah berubah. Draft tetap disimpan sebagai cache darurat tetapi tidak dimuat otomatis.
+      // Cloud sudah berubah. Draft tetap tersimpan sebagai cache darurat,
+      // tetapi tidak dimuat otomatis agar tidak menimpa versi cloud.
       return {payload:remotePayload,dirty:false,staleCache:true};
     }
-    const differs=cloudPayloadSignature(cache.payload)!==cloudPayloadSignature(remotePayload);
-    if(!differs)return {payload:remotePayload,dirty:false};
-    const restore=confirm(`Ditemukan draft lokal yang belum sempat disimpan untuk ${row?.full_name||row?.email||'workspace ini'}.
 
-Pulihkan draft tersebut?
+    // V6.1.1: perubahan yang hanya berasal dari draft formulir atau preferensi UI
+    // tidak lagi dianggap sebagai perubahan data SportScience.
+    const differs=cloudPayloadSignature(safeCachePayload)!==cloudPayloadSignature(remotePayload);
+    if(!differs){
+      clearAdminWorkspaceCache(row?.user_id);
+      return {payload:remotePayload,dirty:false};
+    }
 
-OK = pulihkan draft lokal
+    const restore=confirm(`Ditemukan perubahan DATA yang belum sempat disimpan untuk ${row?.full_name||row?.email||'workspace ini'}.
+
+Pulihkan perubahan tersebut?
+
+OK = pulihkan perubahan lokal
 Batal = gunakan versi cloud.`);
-    if(restore)return {payload:cache.payload,dirty:true};
+    if(restore)return {payload:safeCachePayload,dirty:true};
     clearAdminWorkspaceCache(row?.user_id);
     return {payload:remotePayload,dirty:false};
   }
@@ -11867,7 +11893,7 @@ Data belum dihapus permanen dan baru akan masuk cloud setelah Anda menekan Simpa
   ];
 
 
-  // ===== V6.1 PROFESSIONAL RESPONSIVE UI + PRESCRIPTION =====
+  // ===== V6.1.1 PROFESSIONAL UI + TRUE DIRTY STATE =====
   // Video Pexels dikurasi per exercise untuk mengurangi duplikasi dan meningkatkan kualitas visual. Video digunakan sebagai visualisasi edukatif. Video dengan match="pattern"
   // hanya memperlihatkan pola gerak yang berdekatan, bukan demonstrasi identik.
   const EXERCISE_VIDEO_LIBRARY={
@@ -13123,8 +13149,15 @@ Data belum dihapus permanen dan baru akan masuk cloud setelah Anda menekan Simpa
     setSaveStatus('Draft disimpan');
   }
 
-  function scheduleDraftSave(){
+  function scheduleDraftSave(event){
     if(suppressDraftCapture)return;
+
+    // V6.1.1: event dari menu lain, Pustaka Latihan, Program Latihan,
+    // Wellness, filter, sidebar, dan pengaturan tampilan tidak boleh
+    // membuat draft formulir tes atau menandai workspace admin sebagai dirty.
+    const target=event?.target;
+    if(target && !target.closest?.('#moduleInput')) return;
+
     clearTimeout(draftTimer);
     draftTimer=setTimeout(captureFormDraft,700);
   }
@@ -18089,6 +18122,8 @@ ${css}
       showModule('moduleDashboard',false);
       history.replaceState(null,'','#ringkasan');
     }
+    // Listener tetap global untuk kompatibilitas, tetapi scheduleDraftSave()
+    // kini memproses event hanya bila berasal dari modul Tes Atlet.
     document.querySelector('.wrap')?.addEventListener('input',scheduleDraftSave);
     document.querySelector('.wrap')?.addEventListener('change',scheduleDraftSave);
     syncTrainingDays();
