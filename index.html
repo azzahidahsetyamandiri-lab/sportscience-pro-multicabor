@@ -4703,6 +4703,51 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
     sessionStorage.setItem(ADMIN_PENDING_ACTION_SESSION,JSON.stringify(action));
   }
 
+  function reloadWorkspaceRuntimeFromStorage(render=true){
+    // Muat ulang state aplikasi langsung dari localStorage tanpa reload halaman.
+    // Ini mencegah login overlay berkedip saat admin berpindah workspace.
+    databaseAtlet=loadDB();
+    instansi=loadInstansi();
+    athleteProfiles=loadLocalArray(PROFILE_STORE);
+    wellnessRecords=loadLocalArray(WELLNESS_STORE);
+    customNorms=loadLocalArray(NORM_STORE);
+    nationalSelectionRecords=loadLocalArray(NATIONAL_SELECTION_STORE);
+    generatedProgram=null;
+    if(!render)return;
+    try{bindInstansi();}catch(_){ }
+    try{renderRiwayat();}catch(_){ }
+    try{calculateTeamAnalysis();}catch(_){ }
+    try{updateProfessionalDashboard();}catch(_){ }
+    try{updateTrendOptions();}catch(_){ }
+    try{updateAthleteProfileOptions();}catch(_){ }
+    try{updateWellnessOptions();}catch(_){ }
+    try{updateProgramAthleteOptions();}catch(_){ }
+    try{renderNormCenter();}catch(_){ }
+    try{updateHeadCoachDashboard();}catch(_){ }
+    try{updateDataSafetyStatus();}catch(_){ }
+    try{updateAthleteRoleSuggestions();}catch(_){ }
+    try{renderAuditLog();}catch(_){ }
+  }
+
+  function executeAdminWorkspaceAction(action){
+    if(!action)return false;
+    if(action.action==='new'){
+      showModule('moduleInput');
+      resetForm(true);
+      setTimeout(()=>document.getElementById('nama')?.focus(),80);
+      return true;
+    }
+    if(action.recordId && action.action==='edit'){
+      editAtlet(action.recordId);
+      return true;
+    }
+    if(action.recordId && action.action==='view'){
+      muatUlangAtlet(action.recordId);
+      return true;
+    }
+    return false;
+  }
+
   async function switchAdminWorkspace(ownerId,pendingAction=null,showMessage=false){
     if(!isCloudAdmin())return false;
     ownerId=String(ownerId||cloudUser?.id||'');
@@ -4710,19 +4755,33 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
     if(!adminCloudRows.length)await loadAdminCloudData(false);
     const target=(adminCloudRows||[]).find(r=>String(r.user_id)===ownerId);
     if(!target){alert('Akun tujuan tidak ditemukan atau tidak dapat dibaca oleh admin.');return false;}
+
     const current=adminWorkspaceOwnerId();
-    if(current && nativeStorageGet(ADMIN_WORKSPACE_OWNER_LOCAL)===current){
+    if(current && nativeStorageGet(ADMIN_WORKSPACE_OWNER_LOCAL)===current && String(current)!==ownerId){
       try{await cloudPushNow(false);}catch(err){
         if(!confirm('Workspace aktif belum berhasil disimpan ke cloud. Tetap berpindah?\n\n'+(err.message||err)))return false;
       }
     }
+
+    // Ganti workspace secara langsung tanpa location.reload().
     sessionStorage.setItem(ADMIN_ACTIVE_OWNER_SESSION,ownerId);
-    setAdminPendingAction(pendingAction);
+    adminActiveOwnerId=ownerId;
+    setAdminPendingAction(null);
     applyCloudPayload(target.payload&&typeof target.payload==='object'?target.payload:{});
     nativeStorageSetItem.call(localStorage,ADMIN_WORKSPACE_OWNER_LOCAL,ownerId);
     nativeStorageSetItem.call(localStorage,cloudMarkerKey(ownerId),target.updated_at||'');
-    if(showMessage)showProfessionalToast('Workspace admin dialihkan',`${target.full_name||target.email} menjadi pemilik data aktif.`);
-    location.reload();
+    reloadWorkspaceRuntimeFromStorage(true);
+    updateCloudIdentityUI();
+    renderAdminCloudPanel();
+    closeAdminAccountDetail();
+
+    const actionHandled=executeAdminWorkspaceAction(pendingAction);
+    if(!actionHandled){
+      showModule('moduleDashboard',false);
+      history.replaceState(null,'','#ringkasan');
+    }
+
+    if(showMessage)showProfessionalToast('Workspace admin aktif',`${target.full_name||target.email} sekarang menjadi pemilik data aktif.`);
     return true;
   }
 
@@ -4797,7 +4856,13 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
         applyCloudPayload(data.payload||{});
         nativeStorageSetItem.call(localStorage,ADMIN_WORKSPACE_OWNER_LOCAL,ownerId);
         nativeStorageSetItem.call(localStorage,cloudMarkerKey(ownerId),data.updated_at||'');
-        location.reload();
+        reloadWorkspaceRuntimeFromStorage(true);
+        updateCloudIdentityUI();
+        renderAdminCloudPanel();
+        showModule('moduleDashboard',false);
+        history.replaceState(null,'','#ringkasan');
+        setCloudStatus('☁ Rekaman berhasil dihapus','online');
+        showProfessionalToast('Rekaman tes dihapus',`${target.nama||'Atlet'} • ${row.full_name||row.email}`);
         return true;
       }
       renderAdminCloudPanel();
@@ -4817,19 +4882,7 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
     let action=null;
     try{action=JSON.parse(sessionStorage.getItem(ADMIN_PENDING_ACTION_SESSION)||'null');}catch(_){action=null;}
     sessionStorage.removeItem(ADMIN_PENDING_ACTION_SESSION);
-    if(!action)return false;
-    if(action.action==='new'){
-      showModule('moduleInput');resetForm(true);
-      setTimeout(()=>document.getElementById('nama')?.focus(),80);
-      return true;
-    }
-    if(action.recordId && action.action==='edit'){
-      editAtlet(action.recordId);return true;
-    }
-    if(action.recordId && action.action==='view'){
-      muatUlangAtlet(action.recordId);return true;
-    }
-    return false;
+    return executeAdminWorkspaceAction(action);
   }
 
   function cloudHtml(value){
@@ -5276,8 +5329,9 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
         applyCloudPayload(remotePayload);
         nativeStorageSetItem.call(localStorage,ADMIN_WORKSPACE_OWNER_LOCAL,ownerId);
         nativeStorageSetItem.call(localStorage,cloudMarkerKey(ownerId),ownerRow.updated_at||'');
-        location.reload();
-        return false;
+        reloadWorkspaceRuntimeFromStorage(false);
+        updateCloudIdentityUI();
+        return true;
       }
       nativeStorageSetItem.call(localStorage,ADMIN_WORKSPACE_OWNER_LOCAL,ownerId);
       nativeStorageSetItem.call(localStorage,cloudMarkerKey(ownerId),ownerRow.updated_at||'');
@@ -5297,9 +5351,10 @@ body.cloud-admin-active .adminWorkspaceStrip{display:flex}
       applyCloudPayload(remotePayload);
       nativeStorageSetItem.call(localStorage,cloudMarkerKey(cloudUser.id),row.updated_at);
       nativeStorageSetItem.call(localStorage,CLOUD_LAST_USER_STORE,cloudUser.id);
+      reloadWorkspaceRuntimeFromStorage(false);
       setCloudStatus('☁ Data terbaru dimuat','online');
-      location.reload();
-      return false;
+      updateCloudIdentityUI();
+      return true;
     }
     nativeStorageSetItem.call(localStorage,CLOUD_LAST_USER_STORE,cloudUser.id);
     nativeStorageSetItem.call(localStorage,cloudMarkerKey(cloudUser.id),row.updated_at);
