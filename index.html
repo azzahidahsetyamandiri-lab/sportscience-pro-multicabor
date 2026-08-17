@@ -3226,6 +3226,34 @@ body.proUiReady .proRxExerciseGrid{max-width:100%}
   }
 }
 
+
+/* =========================================================
+   V6.1.6 ANDROID HARD FIX
+   Bottom navigation is forced above every legacy floating badge.
+   ========================================================= */
+@media(max-width:1099px){
+  .proTopbar{z-index:2147481000!important}
+  .proOverlay{z-index:2147481800!important}
+  .proMobileNav{
+    z-index:2147482000!important;
+    left:6px!important;
+    right:6px!important;
+    width:auto!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  }
+  .proMobileMore{z-index:2147482200!important}
+  .proPopover{z-index:2147482300!important}
+
+  #cloudSyncBadge,
+  .cloudSyncBadge{
+    display:none!important;
+    visibility:hidden!important;
+    opacity:0!important;
+    pointer-events:none!important;
+    z-index:-1!important;
+  }
+}
+
 </style>
 </head>
 
@@ -5520,6 +5548,7 @@ body.proUiReady .proRxExerciseGrid{max-width:100%}
       else if(/sinkron/i.test(raw)) label.textContent='Sinkronisasi';
       else label.textContent='Cloud aktif';
     }
+    purgeLegacyFloatingAdminBadge();
   }
 
   function isCloudAdmin(){
@@ -12031,7 +12060,7 @@ Data belum dihapus permanen dan baru akan masuk cloud setelah Anda menekan Simpa
   ];
 
 
-  // ===== V6.1.5 PROFESSIONAL UI + FLOATING BADGE REMOVED =====
+  // ===== V6.1.6 PROFESSIONAL UI + ANDROID HARD FIX =====
   // Video Pexels dikurasi per exercise untuk mengurangi duplikasi dan meningkatkan kualitas visual. Video digunakan sebagai visualisasi edukatif. Video dengan match="pattern"
   // hanya memperlihatkan pola gerak yang berdekatan, bukan demonstrasi identik.
   const EXERCISE_VIDEO_LIBRARY={
@@ -12593,6 +12622,40 @@ Data belum dihapus permanen dan baru akan masuk cloud setelah Anda menekan Simpa
   };
 
 
+
+  function purgeLegacyFloatingAdminBadge(){
+    try{
+      document.querySelectorAll('#cloudSyncBadge,.cloudSyncBadge').forEach(el=>el.remove());
+
+      // Safety net for an old restored fixed badge from Android/BFCache.
+      document.querySelectorAll('body > div, body > span').forEach(el=>{
+        if(el.closest?.('.proTopbar,.proMobileNav,.proMobileMore,.proPopover')) return;
+        const txt=String(el.textContent||'').replace(/\s+/g,' ').trim();
+        if(!/(Admin Safe\s*•\s*Data Admin|Workspace tersimpan aman\s*•\s*Data Admin)/i.test(txt)) return;
+        const style=getComputedStyle(el);
+        if(style.position==='fixed') el.remove();
+      });
+    }catch(_){}
+  }
+
+  function installLegacyBadgeGuard(){
+    purgeLegacyFloatingAdminBadge();
+    if(document.body?.dataset?.legacyBadgeGuard==='1') return;
+    if(document.body)document.body.dataset.legacyBadgeGuard='1';
+
+    const observer=new MutationObserver(mutations=>{
+      let relevant=false;
+      for(const m of mutations){
+        if(m.addedNodes?.length){relevant=true;break;}
+      }
+      if(relevant)purgeLegacyFloatingAdminBadge();
+    });
+    observer.observe(document.documentElement,{childList:true,subtree:true});
+    window.addEventListener('pageshow',()=>setTimeout(purgeLegacyFloatingAdminBadge,0));
+    window.addEventListener('focus',()=>setTimeout(purgeLegacyFloatingAdminBadge,0));
+  }
+
+
   // ===== V6.1 PROFESSIONAL RESPONSIVE UI =====
   const PRO_UI_COLLAPSE_KEY='sportscience_pro_ui_sidebar_collapsed_v1';
   const PRO_MODULE_GROUP={
@@ -12708,6 +12771,7 @@ Data belum dihapus permanen dan baru akan masuk cloud setelah Anda menekan Simpa
     },180);
   }
   function initProfessionalResponsiveUI(){
+    installLegacyBadgeGuard();
     try{
       document.body.classList.add('proUiReady');
       if(localStorage.getItem(PRO_UI_COLLAPSE_KEY)==='1')document.body.classList.add('proSidebarCollapsed');
