@@ -3189,6 +3189,43 @@ body.proUiReady .proRxExerciseGrid{max-width:100%}
   }
 }
 
+
+/* =========================================================
+   V6.1.5 MOBILE NAV GUARANTEE
+   Legacy Admin Safe floating badge has been removed from DOM.
+   Bottom navigation always owns the full mobile width.
+   ========================================================= */
+@media(max-width:1099px){
+  .proMobileNav{
+    width:auto!important;
+    left:8px!important;
+    right:8px!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    overflow:visible!important;
+    isolation:isolate;
+  }
+
+  .proMobileNavBtn{
+    min-width:0!important;
+    width:100%!important;
+    overflow:hidden;
+  }
+
+  .proMobileNavBtn > span:last-child{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:100%;
+  }
+}
+
+@media(max-width:560px){
+  .proMobileNav{
+    left:6px!important;
+    right:6px!important;
+  }
+}
+
 </style>
 </head>
 
@@ -3230,7 +3267,7 @@ body.proUiReady .proRxExerciseGrid{max-width:100%}
   </div>
 </div>
 
-<div id="cloudSyncBadge" class="cloudSyncBadge offline">☁ Cloud belum terhubung</div>
+
 
 <aside class="proSidebar" id="proSidebar" aria-label="Navigasi utama">
   <div class="proSidebarBrand">
@@ -5463,10 +5500,26 @@ body.proUiReady .proRxExerciseGrid{max-width:100%}
   function cloudMarkerKey(userId){return CLOUD_MARKER_PREFIX+userId;}
 
   function setCloudStatus(text,type='online'){
-    const el=document.getElementById('cloudSyncBadge');
-    if(!el)return;
-    el.textContent=text;
-    el.className='cloudSyncBadge '+type;
+    // V6.1.5: legacy floating badge removed permanently.
+    // Status cloud is shown only in the professional top bar.
+    const btn=document.getElementById('proCloudBtn');
+    const label=document.getElementById('proCloudText');
+
+    if(btn){
+      btn.classList.toggle('dirty', type==='syncing');
+      btn.classList.toggle('error', type==='error' || type==='offline');
+      btn.title=String(text||'Status cloud');
+    }
+
+    if(label){
+      const raw=String(text||'').replace(/^☁\s*/,'').trim();
+      if(type==='syncing') label.textContent='Belum disimpan';
+      else if(type==='error') label.textContent='Gangguan cloud';
+      else if(type==='offline') label.textContent='Offline';
+      else if(/tersimpan|aman/i.test(raw)) label.textContent='Tersimpan';
+      else if(/sinkron/i.test(raw)) label.textContent='Sinkronisasi';
+      else label.textContent='Cloud aktif';
+    }
   }
 
   function isCloudAdmin(){
@@ -11978,7 +12031,7 @@ Data belum dihapus permanen dan baru akan masuk cloud setelah Anda menekan Simpa
   ];
 
 
-  // ===== V6.1.4 PROFESSIONAL UI + ANDROID SAFE AREA =====
+  // ===== V6.1.5 PROFESSIONAL UI + FLOATING BADGE REMOVED =====
   // Video Pexels dikurasi per exercise untuk mengurangi duplikasi dan meningkatkan kualitas visual. Video digunakan sebagai visualisasi edukatif. Video dengan match="pattern"
   // hanya memperlihatkan pola gerak yang berdekatan, bukan demonstrasi identik.
   const EXERCISE_VIDEO_LIBRARY={
